@@ -221,6 +221,11 @@
                 cursor: pointer;
             }
             .ws-grid-checkcombobox-item:hover { background-color: #f1f5f9; }
+            .ws-grid-checkcombobox-item.checked-item {
+                background-color: #eff6ff;
+                font-weight: 600;
+                color: #1d4ed8;
+            }
             .ws-grid-checkcombobox-item input { margin-right: 8px; }
 
             .ws-log-box {
@@ -846,20 +851,71 @@
                     var scrollList = document.createElement('div');
                     scrollList.className = 'ws-checkcombobox-items-scroll';
 
-                    var allItem = document.createElement('div');
-                    allItem.className = 'ws-grid-checkcombobox-item';
-                    allItem.style.fontWeight = 'bold';
-                    allItem.style.borderBottom = '1px solid #f1f5f9';
-                    allItem.innerHTML = '<input type="checkbox" id="chk_grid_all"/> <label for="chk_grid_all">- 전체 선택 (' + rowCategory + ') -</label>';
-                    scrollList.appendChild(allItem);
+                    function renderDropdownList() {
+                        var currentVal = dltGridData[rIdx].workTarget || '';
+                        var selectedCodes = currentVal ? currentVal.split(',') : [];
 
-                    filteredTargets.forEach(function(item) {
-                        var itemDiv = document.createElement('div');
-                        itemDiv.className = 'ws-grid-checkcombobox-item';
-                        var isChecked = selectedCodes.includes(item.TARGET_CODE);
-                        itemDiv.innerHTML = '<input type="checkbox" class="grid-chk-item" value="' + item.TARGET_CODE + '" ' + (isChecked ? 'checked' : '') + '/> <label>' + item.TARGET_NAME + '</label>';
-                        scrollList.appendChild(itemDiv);
-                    });
+                        // 📌 체크된 항목 상단 정렬 (Sort checked items to top)
+                        var sortedTargets = filteredTargets.slice().sort(function(a, b) {
+                            var aChecked = selectedCodes.includes(a.TARGET_CODE);
+                            var bChecked = selectedCodes.includes(b.TARGET_CODE);
+                            if (aChecked && !bChecked) return -1;
+                            if (!aChecked && bChecked) return 1;
+                            return 0;
+                        });
+
+                        scrollList.innerHTML = '';
+
+                        // 전체 선택 옵션
+                        var allItem = document.createElement('div');
+                        allItem.className = 'ws-grid-checkcombobox-item';
+                        allItem.style.fontWeight = 'bold';
+                        allItem.style.borderBottom = '1px solid #e2e8f0';
+                        var isAllChecked = filteredTargets.length > 0 && filteredTargets.every(t => selectedCodes.includes(t.TARGET_CODE));
+                        allItem.innerHTML = '<input type="checkbox" id="chk_grid_all" ' + (isAllChecked ? 'checked' : '') + '/> <label for="chk_grid_all">- 전체 선택 (' + rowCategory + ') -</label>';
+                        scrollList.appendChild(allItem);
+
+                        allItem.querySelector('input').addEventListener('change', function(e) {
+                            var checked = e.target.checked;
+                            var newCodes = checked ? filteredTargets.map(t => t.TARGET_CODE) : [];
+                            dltGridData[rIdx].workTarget = newCodes.join(',');
+                            display.querySelector('span').textContent = getWorkTargetNames(dltGridData[rIdx].workTarget) || '- 전체 선택 -';
+                            renderDropdownList();
+                        });
+
+                        // 체크된 항목 우선순위 렌더링
+                        sortedTargets.forEach(function(item) {
+                            var itemDiv = document.createElement('div');
+                            var isChecked = selectedCodes.includes(item.TARGET_CODE);
+                            itemDiv.className = 'ws-grid-checkcombobox-item' + (isChecked ? ' checked-item' : '');
+                            itemDiv.innerHTML = '<input type="checkbox" class="grid-chk-item" value="' + item.TARGET_CODE + '" ' + (isChecked ? 'checked' : '') + '/> <label>' + item.TARGET_NAME + '</label>';
+
+                            var chkInput = itemDiv.querySelector('input');
+                            chkInput.addEventListener('change', function(e) {
+                                var newCodes = [];
+                                scrollList.querySelectorAll('.grid-chk-item').forEach(function(chk) {
+                                    if (chk.checked) newCodes.push(chk.value);
+                                });
+                                dltGridData[rIdx].workTarget = newCodes.join(',');
+                                display.querySelector('span').textContent = getWorkTargetNames(dltGridData[rIdx].workTarget) || '- 전체 선택 -';
+                                renderDropdownList();
+                            });
+
+                            scrollList.appendChild(itemDiv);
+                        });
+
+                        // 실시간 검색 키워드 유지
+                        var query = searchInput.value.toLowerCase().trim();
+                        if (query) {
+                            scrollList.querySelectorAll('.ws-grid-checkcombobox-item').forEach(function(itemDiv) {
+                                if (itemDiv.querySelector('#chk_grid_all')) return;
+                                var labelText = itemDiv.textContent.toLowerCase();
+                                itemDiv.style.display = (labelText.indexOf(query) >= 0) ? 'flex' : 'none';
+                            });
+                        }
+                    }
+
+                    renderDropdownList();
 
                     dropdown.appendChild(scrollList);
                     container.appendChild(display);
