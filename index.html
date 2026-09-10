@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:w2="http://www.inswave.com/websquare" 
+    xmlns:ui="http://www.inswave.com/websquare/ui">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WebSquare GridView 샘플</title>
+        <style>
+            body {
+                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                background-color: #f4f6f9;
+                margin: 0;
+                padding: 30px;
+                color: #333;
+            }
+            .ws-card {
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                padding: 24px 30px;
+                max-width: 980px;
+                margin: 0 auto;
+            }
+            .ws-title {
+                font-size: 20px;
+                font-weight: 700;
+                color: #1e293b;
+                margin-bottom: 6px;
+            }
+            .ws-subtitle {
+                font-size: 13.5px;
+                color: #64748b;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #e2e8f0;
+                padding-bottom: 12px;
+                line-height: 1.5;
+            }
+            .ws-btn-group {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .ws-btn {
+                background-color: #2563eb;
+                color: #ffffff;
+                border: none;
+                border-radius: 6px;
+                padding: 8px 14px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s, transform 0.1s;
+            }
+            .ws-btn:hover { background-color: #1d4ed8; }
+            .ws-btn-secondary { background-color: #475569; }
+            .ws-btn-secondary:hover { background-color: #334155; }
+            .ws-btn-danger { background-color: #ef4444; }
+            .ws-btn-danger:hover { background-color: #dc2626; }
+            .ws-btn-info { background-color: #0d9488; }
+            .ws-btn-info:hover { background-color: #0f766e; }
+            .ws-btn-zoom { background-color: #4f46e5; }
+            .ws-btn-zoom:hover { background-color: #4338ca; }
+
+            .ws-zoom-badge {
+                display: inline-block;
+                padding: 6px 12px;
+                background: #e0e7ff;
+                color: #3730a3;
+                border-radius: 20px;
+                font-weight: 700;
+                font-size: 13px;
+            }
+
+            /* WebSquare GridView Style Emulation */
+            .ws-grid-wrapper {
+                overflow: auto;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+            .ws-grid-container {
+                width: 100%;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                overflow: visible;
+                background: #fff;
+                transition: transform 0.2s ease, zoom 0.2s ease;
+                transform-origin: top left;
+            }
+            .ws-grid-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+            .ws-grid-table th {
+                background-color: #f1f5f9;
+                color: #334155;
+                font-weight: 700;
+                padding: 10px 12px;
+                text-align: center;
+                border-bottom: 2px solid #cbd5e1;
+                border-right: 1px solid #e2e8f0;
+            }
+            .ws-grid-table th.hidden-col, .ws-grid-table td.hidden-col {
+                display: none;
+            }
+            .ws-grid-table th:last-child { border-right: none; }
+            .ws-grid-table td {
+                padding: 10px 12px;
+                border-bottom: 1px solid #e2e8f0;
+                border-right: 1px solid #e2e8f0;
+                color: #1e293b;
+                position: relative;
+                min-height: 42px;
+                box-sizing: border-box;
+                cursor: pointer;
+                vertical-align: middle;
+            }
+            .ws-grid-table td:last-child { border-right: none; }
+            .ws-grid-table tr:hover { background-color: #f8fafc; }
+            .ws-grid-table tr.selected { background-color: #eff6ff; }
+
+            /* Grid Cell Edit Controls */
+            .ws-grid-select {
+                width: 100%;
+                height: 34px;
+                border: 2px solid #2563eb;
+                border-radius: 4px;
+                padding: 0 8px;
+                font-size: 14px;
+                font-weight: 600;
+                outline: none;
+                background-color: #ffffff;
+                box-sizing: border-box;
+                color: #1e293b;
+                cursor: pointer;
+            }
+
+            .ws-grid-input {
+                width: 100%;
+                height: 34px;
+                border: 2px solid #2563eb;
+                border-radius: 4px;
+                padding: 0 8px;
+                font-size: 14px;
+                box-sizing: border-box;
+                outline: none;
+            }
+
+            /* CheckComboBox & Search Box */
+            .ws-grid-checkcombobox-container {
+                position: relative;
+                width: 100%;
+            }
+            .ws-grid-checkcombobox-display {
+                width: 100%;
+                height: 34px;
+                padding: 0 10px;
+                box-sizing: border-box;
+                border: 2px solid #2563eb;
+                border-radius: 4px;
+                background-color: #fff;
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                cursor: pointer;
+            }
+            .ws-grid-checkcombobox-dropdown {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                margin-top: 2px;
+                background: #ffffff;
+                border: 1px solid #cbd5e1;
+                border-radius: 6px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                max-height: 250px;
+                overflow: hidden;
+                z-index: 2000;
+                display: flex;
+                flex-direction: column;
+            }
+            .ws-grid-checkcombobox-dropdown.show { display: flex; }
+
+            .ws-search-header {
+                padding: 6px 8px;
+                border-bottom: 1px solid #e2e8f0;
+                background-color: #f8fafc;
+            }
+            .ws-search-input {
+                width: 100%;
+                height: 28px;
+                padding: 0 8px;
+                font-size: 12.5px;
+                border: 1px solid #cbd5e1;
+                border-radius: 4px;
+                outline: none;
+                box-sizing: border-box;
+            }
+            .ws-search-input:focus {
+                border-color: #2563eb;
+            }
+
+            .ws-checkcombobox-items-scroll {
+                max-height: 190px;
+                overflow-y: auto;
+                padding: 4px 0;
+            }
+
+            .ws-grid-checkcombobox-item {
+                display: flex;
+                align-items: center;
+                padding: 6px 10px;
+                font-size: 13px;
+                cursor: pointer;
+            }
+            .ws-grid-checkcombobox-item:hover { background-color: #f1f5f9; }
+            .ws-grid-checkcombobox-item.checked-item {
+                background-color: #eff6ff;
+                font-weight: 600;
+                color: #1d4ed8;
+            }
+            .ws-grid-checkcombobox-item input { margin-right: 8px; }
+
+            .ws-log-box {
+                padding: 14px 18px;
+                background-color: #0f172a;
+                border-radius: 8px;
+                font-family: 'Fira Code', monospace;
+                font-size: 13px;
+                color: #38bdf8;
+                white-space: pre-wrap;
+                max-height: 280px;
+                overflow-y: auto;
+            }
+            
+            .ws-multiline-container {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .ws-badge {
+                display: inline-block;
+                padding: 3px 10px;
+                border-radius: 12px;
+                font-size: 12.5px;
+                font-weight: 600;
+                width: fit-content;
+            }
+            .ws-badge-room { background: #dbeafe; color: #1e40af; }
+            .ws-badge-ut { background: #fef3c7; color: #92400e; }
+            .ws-badge-mat { background: #ecfdf5; color: #047857; border: 1px dashed #059669; }
+            .ws-badge-hidden { background: #f3e8ff; color: #6b21a8; font-weight: bold; }
+        </style>
+
+        <!-- 스크립트 정의 -->
+        <script type="text/javascript">
+            var scwin = {};
+            var currentZoomLevel = 100;
+
+            scwin.onpageload = function() {
+                console.log("페이지 로드 완료");
+            };
+
+            // 행 추가
+            scwin.btn_addRow_onclick = function() {
+                var idx = dlt_grid.insertRow();
+                dlt_grid.setCellData(idx, "workType", "SUPPLY_ROOM");
+                dlt_grid.setCellData(idx, "workCategory", "Room");
+                dlt_grid.setCellData(idx, "workTarget", "");
+                dlt_grid.setCellData(idx, "remark", "신규 작업 건");
+            };
+
+            // 행 삭제
+            scwin.btn_delRow_onclick = function() {
+                var focusedIdx = gridView1.getFocusedRowIndex();
+                if (focusedIdx >= 0) {
+                    dlt_grid.removeRow(focusedIdx);
+                } else {
+                    alert("삭제할 행을 먼저 클릭하세요.");
+                }
+            };
+
+            // 그리드 확대 (+)
+            scwin.btn_zoomIn_onclick = function() {
+                if (currentZoomLevel < 160) {
+                    currentZoomLevel += 10;
+                    applyGridZoom();
+                }
+            };
+
+            // 그리드 축소 (-)
+            scwin.btn_zoomOut_onclick = function() {
+                if (currentZoomLevel > 70) {
+                    currentZoomLevel -= 10;
+                    applyGridZoom();
+                }
+            };
+
+            // 그리드 줌 리셋 (100%)
+            scwin.btn_zoomReset_onclick = function() {
+                currentZoomLevel = 100;
+                applyGridZoom();
+            };
+
+            function applyGridZoom() {
+                var container = document.querySelector('.ws-grid-container');
+                var badge = document.getElementById('zoomBadge');
+                if (container) {
+                    container.style.zoom = (currentZoomLevel / 100);
+                }
+                if (badge) {
+                    badge.textContent = currentZoomLevel + '%';
+                }
+            }
+
+            // 전체 데이터 JSON 확인 (숨김 열 포함)
+            scwin.btn_getData_onclick = function() {
+                var data = dlt_grid.getAllJSON();
+                document.getElementById("logBox").innerText = "// dlt_grid.getAllJSON()\n" + JSON.stringify(data, null, 2);
+            };
+
+            // 숨김 열 토글 함수
+            scwin.btn_toggleHidden_onclick = function() {
+                var isHidden = gridView1.getHiddenColumnStatus("workCategory");
+                gridView1.setHiddenColumnStatus("workCategory", !isHidden);
+            };
+        </script>
+    </head>
+    <body>
+        <!-- WebSquare 메타데이터 및 DataCollection (화면 노출 방지용 hidden 컨테이너) -->
+        <div style="display:none;" id="ws_metadata_container">
+            <w2:type>DEFAULT</w2:type>
+            <w2:buildVersion/>
+            <w2:publicJS/>
+
+            <!-- DataCollections 정의 -->
+            <w2:dataCollection baseNode="map">
+                <!-- 1. GridView 메인 데이터 리스트 -->
+                <w2:dataList baseNode="list" repeatNode="map" id="dlt_grid" saveRemovedData="true">
+                    <w2:columnInfo>
+                        <w2:column id="workType" name="작업유형" dataType="text"></w2:column>
+                        <w2:column id="workCategory" name="작업구분(숨김)" dataType="text"></w2:column>
+                        <w2:column id="workTarget" name="작업대상" dataType="text"></w2:column>
+                        <w2:column id="remark" name="비고" dataType="text"></w2:column>
+                    </w2:columnInfo>
+                    <w2:data use="true">
+                        <w2:row>
+                            <workType>SUPPLY_ROOM</workType>
+                            <workCategory>Room</workCategory>
+                            <workTarget>ROOM_CLEAN,ROOM_STERILE</workTarget>
+                            <remark>공급실 소독 및 청정 점검</remark>
+                        </w2:row>
+                        <w2:row>
+                            <workType>EQUIPMENT</workType>
+                            <workCategory>UT</workCategory>
+                            <workTarget>UT_AHU,UT_CHILLER</workTarget>
+                            <remark>공조기 및 냉동기 정기 점검</remark>
+                        </w2:row>
+                        <w2:row>
+                            <workType>MATERIAL</workType>
+                            <workCategory>UT</workCategory>
+                            <workTarget>HEPA 필터 H14 등급</workTarget>
+                            <remark>자재 직접 입력 텍스트</remark>
+                        </w2:row>
+                    </w2:data>
+                </w2:dataList>
+
+                <!-- 2. 작업유형 (select) 데이터 리스트 -->
+                <w2:dataList baseNode="list" repeatNode="map" id="dlt_workType" saveRemovedData="true">
+                    <w2:columnInfo>
+                        <w2:column id="TYPE_CODE" name="코드" dataType="text"></w2:column>
+                        <w2:column id="TYPE_NAME" name="유형명" dataType="text"></w2:column>
+                        <w2:column id="CATEGORY" name="작업구분" dataType="text"></w2:column>
+                    </w2:columnInfo>
+                    <w2:data use="true">
+                        <w2:row>
+                            <TYPE_CODE>SUPPLY_ROOM</TYPE_CODE>
+                            <TYPE_NAME>공급실</TYPE_NAME>
+                            <CATEGORY>Room</CATEGORY>
+                        </w2:row>
+                        <w2:row>
+                            <TYPE_CODE>EQUIPMENT</TYPE_CODE>
+                            <TYPE_NAME>설비</TYPE_NAME>
+                            <CATEGORY>UT</CATEGORY>
+                        </w2:row>
+                        <w2:row>
+                            <TYPE_CODE>MATERIAL</TYPE_CODE>
+                            <TYPE_NAME>자재</TYPE_NAME>
+                            <CATEGORY>UT</CATEGORY>
+                        </w2:row>
+                    </w2:data>
+                </w2:dataList>
+
+                <!-- 3. 작업대상 (checkcombobox) 데이터 리스트 -->
+                <w2:dataList baseNode="list" repeatNode="map" id="dlt_workTarget" saveRemovedData="true">
+                    <w2:columnInfo>
+                        <w2:column id="TARGET_CODE" name="코드" dataType="text"></w2:column>
+                        <w2:column id="TARGET_NAME" name="대상명" dataType="text"></w2:column>
+                        <w2:column id="CATEGORY" name="작업구분" dataType="text"></w2:column>
+                    </w2:columnInfo>
+                    <w2:data use="true">
+                        <!-- Room 종류 데이터 -->
+                        <w2:row><TARGET_CODE>ROOM_CLEAN</TARGET_CODE><TARGET_NAME>클린룸 A동</TARGET_NAME><CATEGORY>Room</CATEGORY></w2:row>
+                        <w2:row><TARGET_CODE>ROOM_STERILE</TARGET_CODE><TARGET_NAME>무균 준비실</TARGET_NAME><CATEGORY>Room</CATEGORY></w2:row>
+                        <w2:row><TARGET_CODE>ROOM_STORAGE</TARGET_CODE><TARGET_NAME>원자재 보관실</TARGET_NAME><CATEGORY>Room</CATEGORY></w2:row>
+                        <w2:row><TARGET_CODE>ROOM_PACKING</TARGET_CODE><TARGET_NAME>포장 작업실</TARGET_NAME><CATEGORY>Room</CATEGORY></w2:row>
+                        
+                        <!-- 설비 종류 데이터 -->
+                        <w2:row><TARGET_CODE>UT_AHU</TARGET_CODE><TARGET_NAME>공조기 (AHU)</TARGET_NAME><CATEGORY>UT</CATEGORY></w2:row>
+                        <w2:row><TARGET_CODE>UT_RO</TARGET_CODE><TARGET_NAME>순수제조장치 (RO/EDI)</TARGET_NAME><CATEGORY>UT</CATEGORY></w2:row>
+                        <w2:row><TARGET_CODE>UT_CHILLER</TARGET_CODE><TARGET_NAME>냉동기 (Chiller)</TARGET_NAME><CATEGORY>UT</CATEGORY></w2:row>
+                        <w2:row><TARGET_CODE>UT_BOILER</TARGET_CODE><TARGET_NAME>보일러 (Boiler)</TARGET_NAME><CATEGORY>UT</CATEGORY></w2:row>
+                        <w2:row><TARGET_CODE>UT_FAN</TARGET_CODE><TARGET_NAME>배기팬 (Exhaust Fan)</TARGET_NAME><CATEGORY>UT</CATEGORY></w2:row>
+                    </w2:data>
+                </w2:dataList>
+            </w2:dataCollection>
+            <w2:workflowCollection/>
+        </div>
+
+        <div class="ws-card">
+            <w2:textbox id="lbl_title" class="ws-title" label="WebSquare GridView 샘플 (CheckComboBox 검색 &amp; 그리드 확대/축소)" style="display:block;"></w2:textbox>
+            <div class="ws-subtitle">
+                • <strong>CheckComboBox 검색:</strong> 작업대상 클릭 시 상단 실시간 검색창으로 대상 검색 지원<br/>
+                • <strong>그리드 확대/축소:</strong> 🔍 버튼 클릭으로 그리드 화면 비율 (70% ~ 160%) 조절 가능<br/>
+                • <strong>1열 (작업유형) 변경 시:</strong> 숨김 열 갱신 및 2열(작업대상) 자동 초기화("")<br/>
+                • <strong>멀티선택 표현:</strong> 비 편집 모드 시 선택 항목 <strong>줄바꿈(&lt;br/&gt;)</strong> 세로 표기
+            </div>
+
+            <!-- 버튼 영역 -->
+            <w2:group id="grp_buttons" class="ws-btn-group">
+                <w2:trigger id="btn_addRow" class="ws-btn" type="button" ev:onclick="scwin.btn_addRow_onclick">
+                    <w2:label>행 추가</w2:label>
+                </w2:trigger>
+                <w2:trigger id="btn_delRow" class="ws-btn ws-btn-danger" type="button" ev:onclick="scwin.btn_delRow_onclick">
+                    <w2:label>행 삭제</w2:label>
+                </w2:trigger>
+                <w2:trigger id="btn_toggleHidden" class="ws-btn ws-btn-info" type="button" ev:onclick="scwin.btn_toggleHidden_onclick">
+                    <w2:label>숨김 열 토글</w2:label>
+                </w2:trigger>
+
+                <!-- 확대 / 축소 버튼 그룹 -->
+                <w2:trigger id="btn_zoomIn" class="ws-btn ws-btn-zoom" type="button" ev:onclick="scwin.btn_zoomIn_onclick">
+                    <w2:label>🔍 확대 (+)</w2:label>
+                </w2:trigger>
+                <w2:trigger id="btn_zoomOut" class="ws-btn ws-btn-zoom" type="button" ev:onclick="scwin.btn_zoomOut_onclick">
+                    <w2:label>🔍 축소 (-)</w2:label>
+                </w2:trigger>
+                <w2:trigger id="btn_zoomReset" class="ws-btn ws-btn-secondary" type="button" ev:onclick="scwin.btn_zoomReset_onclick">
+                    <w2:label>100%</w2:label>
+                </w2:trigger>
+                <span class="ws-zoom-badge" id="zoomBadge">100%</span>
+
+                <w2:trigger id="btn_getData" class="ws-btn ws-btn-secondary" type="button" ev:onclick="scwin.btn_getData_onclick" style="margin-left:auto;">
+                    <w2:label>전체 JSON 데이터 확인</w2:label>
+                </w2:trigger>
+                <a href="header_sample.html" class="ws-btn ws-btn-info" style="text-decoration: none; display: inline-flex; align-items: center;">
+                    다중 헤더 샘플 ▶
+                </a>
+                <a href="tab_main.html" class="ws-btn ws-btn-success" style="text-decoration: none; display: inline-flex; align-items: center;">
+                    3개 탭 엑셀 샘플 ▶
+                </a>
+            </w2:group>
+
+            <!-- WebSquare GridView 컴포넌트 -->
+            <div class="ws-grid-wrapper">
+                <w2:gridView id="gridView1" 
+                    style="width: 100%; height: 320px;" 
+                    dataList="dataList:dlt_grid" 
+                    readOnly="false" 
+                    editModeEvent="onclick" 
+                    autoFit="allColumn"
+                    visibleRowNum="5">
+                    <w2:header id="header1">
+                        <w2:row id="row1">
+                            <w2:column id="col_type" blockSelect="false" width="140" inputType="text" value="작업유형 (select)"></w2:column>
+                            <!-- 숨김 열: 작업구분 (visible="false") -->
+                            <w2:column id="col_category" blockSelect="false" width="120" inputType="text" value="작업구분 (숨김)" visible="false"></w2:column>
+                            <w2:column id="col_target" blockSelect="false" width="320" inputType="text" value="작업대상 (검색기능 / checkcombobox)"></w2:column>
+                            <w2:column id="col_remark" blockSelect="false" width="180" inputType="text" value="비고"></w2:column>
+                        </w2:row>
+                    </w2:header>
+                    <w2:gBody id="gBody1">
+                        <w2:row id="row2">
+                            <!-- 1열: 작업유형 (select) -->
+                            <w2:column id="workType" blockSelect="false" width="140" inputType="select" chooseOption="true" chooseOptionLabel="- 선택 -">
+                                <w2:choices>
+                                    <w2:itemset nodeset="dataList:dlt_workType">
+                                        <w2:label ref="TYPE_NAME"></w2:label>
+                                        <w2:value ref="TYPE_CODE"></w2:value>
+                                    </w2:itemset>
+                                </w2:choices>
+                            </w2:column>
+                            <!-- 숨김 열: 작업구분 (visible="false") -->
+                            <w2:column id="workCategory" blockSelect="false" width="120" inputType="text" visible="false"></w2:column>
+                            <!-- 2열: 작업대상 (검색 지원 CheckComboBox) -->
+                            <w2:column id="workTarget" blockSelect="false" width="320" inputType="checkcombobox" chooseOption="true" chooseOptionLabel="- 전체 선택 -" displayMode="label" style="white-space: pre-line;">
+                                <w2:choices>
+                                    <w2:itemset nodeset="dataList:dlt_workTarget">
+                                        <w2:label ref="TARGET_NAME"></w2:label>
+                                        <w2:value ref="TARGET_CODE"></w2:value>
+                                    </w2:itemset>
+                                </w2:choices>
+                            </w2:column>
+                            <!-- 3열: 비고 (text) -->
+                            <w2:column id="remark" blockSelect="false" width="180" inputType="text"></w2:column>
+                        </w2:row>
+                    </w2:gBody>
+                </w2:gridView>
+            </div>
+
+            <!-- 결과 JSON 출력 상자 -->
+            <div class="ws-log-box" id="logBox">// "전체 JSON 데이터 확인" 버튼을 누르면 숨김 열(workCategory)을 포함한 JSON 데이터가 표시됩니다.</div>
+        </div>
+
+        <!-- WebSquare GridView Browser Runtime Emulation Polyfill -->
+        <script type="text/javascript">
+            (function() {
+                window.dataListMap = {};
+
+                function getNodeText(node) {
+                    if (!node) return '';
+                    var text = node.textContent ? node.textContent.trim() : '';
+                    if (!text && node.innerHTML) {
+                        var match = node.innerHTML.match(/\[CDATA\[([\s\S]*?)\]\]/);
+                        if (match) return match[1].trim();
+                    }
+                    return text;
+                }
+
+                function parseDataLists() {
+                    var dataLists = document.querySelectorAll('w2\\:dataList, dataList');
+                    dataLists.forEach(function(dl) {
+                        var dlId = dl.getAttribute('id');
+                        var rows = [];
+                        var rowNodes = dl.querySelectorAll('w2\\:row, row');
+                        rowNodes.forEach(function(r) {
+                            var rowObj = {};
+                            for(var i=0; i<r.children.length; i++) {
+                                var colNode = r.children[i];
+                                var colName = colNode.tagName.toUpperCase();
+                                var val = getNodeText(colNode);
+                                rowObj[colName] = val;
+
+                                if (colNode.tagName === 'workType' || colName === 'WORKTYPE') rowObj['workType'] = val;
+                                if (colNode.tagName === 'workCategory' || colName === 'WORKCATEGORY') rowObj['workCategory'] = val;
+                                if (colNode.tagName === 'workTarget' || colName === 'WORKTARGET') rowObj['workTarget'] = val;
+                                if (colNode.tagName === 'remark' || colName === 'REMARK') rowObj['remark'] = val;
+
+                                if (colName === 'TYPE_CODE') rowObj['TYPE_CODE'] = val;
+                                if (colName === 'TYPE_NAME') rowObj['TYPE_NAME'] = val;
+                                if (colName === 'TARGET_CODE') rowObj['TARGET_CODE'] = val;
+                                if (colName === 'TARGET_NAME') rowObj['TARGET_NAME'] = val;
+                                if (colName === 'CATEGORY') rowObj['CATEGORY'] = val;
+                            }
+                            rows.push(rowObj);
+                        });
+                        window.dataListMap[dlId] = rows;
+                    });
+                }
+                parseDataLists();
+
+                var defaultInitialGridData = [
+                    { "workType": "SUPPLY_ROOM", "workCategory": "Room", "workTarget": "ROOM_CLEAN,ROOM_STERILE", "remark": "공급실 소독 및 청정 점검" },
+                    { "workType": "EQUIPMENT", "workCategory": "UT", "workTarget": "UT_AHU,UT_CHILLER", "remark": "공조기 및 냉동기 정기 점검" },
+                    { "workType": "MATERIAL", "workCategory": "UT", "workTarget": "HEPA 필터 H14 등급", "remark": "자재 직접 입력 텍스트" }
+                ];
+
+                var parsedGridData = window.dataListMap['dlt_grid'] || [];
+                var dltGridData = (parsedGridData.length > 0 && parsedGridData[0].workType) ? parsedGridData : defaultInitialGridData;
+                
+                var dltWorkType = [
+                    { TYPE_CODE: "SUPPLY_ROOM", TYPE_NAME: "공급실", CATEGORY: "Room" },
+                    { TYPE_CODE: "EQUIPMENT", TYPE_NAME: "설비", CATEGORY: "UT" },
+                    { TYPE_CODE: "MATERIAL", TYPE_NAME: "자재", CATEGORY: "UT" }
+                ];
+                
+                var dltWorkTarget = [
+                    { TARGET_CODE: "ROOM_CLEAN", TARGET_NAME: "클린룸 A동", CATEGORY: "Room" },
+                    { TARGET_CODE: "ROOM_STERILE", TARGET_NAME: "무균 준비실", CATEGORY: "Room" },
+                    { TARGET_CODE: "ROOM_STORAGE", TARGET_NAME: "원자재 보관실", CATEGORY: "Room" },
+                    { TARGET_CODE: "ROOM_PACKING", TARGET_NAME: "포장 작업실", CATEGORY: "Room" },
+                    { TARGET_CODE: "UT_AHU", TARGET_NAME: "공조기 (AHU)", CATEGORY: "UT" },
+                    { TARGET_CODE: "UT_RO", TARGET_NAME: "순수제조장치 (RO/EDI)", CATEGORY: "UT" },
+                    { TARGET_CODE: "UT_CHILLER", TARGET_NAME: "냉동기 (Chiller)", CATEGORY: "UT" },
+                    { TARGET_CODE: "UT_BOILER", TARGET_NAME: "보일러 (Boiler)", CATEGORY: "UT" },
+                    { TARGET_CODE: "UT_FAN", TARGET_NAME: "배기팬 (Exhaust Fan)", CATEGORY: "UT" }
+                ];
+
+                var isHiddenCategoryVisible = false;
+
+                window.dlt_grid = {
+                    getAllJSON: function() { return dltGridData; },
+                    setJSON: function(dataArr) {
+                        dltGridData = dataArr || [];
+                        renderGrid();
+                    },
+                    insertRow: function() {
+                        var newRow = { workType: 'SUPPLY_ROOM', workCategory: 'Room', workTarget: '', remark: '신규 작업 건' };
+                        dltGridData.push(newRow);
+                        renderGrid();
+                        return dltGridData.length - 1;
+                    },
+                    removeRow: function(idx) {
+                        if (idx >= 0 && idx < dltGridData.length) {
+                            dltGridData.splice(idx, 1);
+                            renderGrid();
+                        }
+                    },
+                    setCellData: function(rowIdx, colId, val) {
+                        if (dltGridData[rowIdx]) {
+                            dltGridData[rowIdx][colId] = val;
+                            renderGrid();
+                        }
+                    }
+                };
+
+                var focusedRowIdx = -1;
+                window.gridView1 = {
+                    getFocusedRowIndex: function() { return focusedRowIdx; },
+                    getHiddenColumnStatus: function(colId) { return !isHiddenCategoryVisible; },
+                    setHiddenColumnStatus: function(colId, hidden) {
+                        isHiddenCategoryVisible = !hidden;
+                        renderGrid();
+                    },
+                    setCellInputType: function(rowIdx, colId, inputType) {
+                        console.log("setCellInputType: row " + rowIdx + ", col " + colId + " -> " + inputType);
+                    }
+                };
+
+                var gridElem = document.querySelectorAll('w2\\:gridView, gridView')[0];
+                if (!gridElem) return;
+
+                var gridContainer = document.createElement('div');
+                gridContainer.className = 'ws-grid-container';
+
+                var table = document.createElement('table');
+                table.className = 'ws-grid-table';
+
+                var thead = document.createElement('thead');
+                table.appendChild(thead);
+
+                var tbody = document.createElement('tbody');
+                table.appendChild(tbody);
+                gridContainer.appendChild(table);
+
+                gridElem.parentNode.replaceChild(gridContainer, gridElem);
+
+                function getWorkTypeName(code) {
+                    if (!code) return '';
+                    var found = dltWorkType.find(t => t.TYPE_CODE === code || t.TYPE_NAME === code);
+                    return found ? found.TYPE_NAME : code;
+                }
+
+                function getWorkCategory(workTypeCode) {
+                    if (!workTypeCode) return 'Room';
+                    var found = dltWorkType.find(t => t.TYPE_CODE === workTypeCode || t.TYPE_NAME === workTypeCode);
+                    return found ? found.CATEGORY : 'Room';
+                }
+
+                function isMaterialType(workTypeCode) {
+                    return workTypeCode === 'MATERIAL' || workTypeCode === '자재';
+                }
+
+                function getWorkTargetNames(codesStr) {
+                    if (!codesStr) return '';
+                    var codes = codesStr.split(',');
+                    var names = codes.map(c => {
+                        var found = dltWorkTarget.find(t => t.TARGET_CODE === c || t.TARGET_NAME === c);
+                        return found ? found.TARGET_NAME : c;
+                    });
+                    return names.join(', ');
+                }
+
+                function renderGrid() {
+                    thead.innerHTML = '<tr>' +
+                        '<th style="width:160px;">작업유형 (select)</th>' +
+                        '<th class="' + (isHiddenCategoryVisible ? '' : 'hidden-col') + '" style="width:120px; background-color:#e0e7ff;">작업구분 (숨김)</th>' +
+                        '<th style="width:340px;">작업대상 (검색기능 / checkcombobox)</th>' +
+                        '<th>비고 (text)</th>' +
+                        '</tr>';
+
+                    tbody.innerHTML = '';
+                    dltGridData.forEach(function(row, rIdx) {
+                        var tr = document.createElement('tr');
+                        if (rIdx === focusedRowIdx) tr.classList.add('selected');
+
+                        tr.addEventListener('click', function(e) {
+                            focusedRowIdx = rIdx;
+                            tbody.querySelectorAll('tr').forEach((r, i) => {
+                                if (i === rIdx) r.classList.add('selected');
+                                else r.classList.remove('selected');
+                            });
+                        });
+
+                        // 1열: 작업유형 (select)
+                        var td1 = document.createElement('td');
+                        var typeLabel = getWorkTypeName(row.workType);
+                        td1.innerHTML = '<span style="font-weight:600; color:#1e293b;">' + (typeLabel || '<span style="color:#94a3b8;">- 선택 -</span>') + ' <small style="color:#94a3b8;">▼</small></span>';
+                        td1.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            editCellSelect(td1, rIdx);
+                        });
+                        tr.appendChild(td1);
+
+                        // 숨김 열: 작업구분 (Room / UT)
+                        var tdCategory = document.createElement('td');
+                        if (!isHiddenCategoryVisible) tdCategory.className = 'hidden-col';
+                        var catVal = row.workCategory || getWorkCategory(row.workType);
+                        tdCategory.innerHTML = '<span class="ws-badge ws-badge-hidden">' + catVal + '</span>';
+                        tr.appendChild(tdCategory);
+
+                        // 2열: 작업대상 (편집 모드가 아닐 때 멀티 선택 항목은 줄바꿈 표시)
+                        var td2 = document.createElement('td');
+                        if (isMaterialType(row.workType)) {
+                            // "자재" 선택 시 ➔ text 입력타입
+                            var matVal = row.workTarget || '';
+                            td2.innerHTML = '<span class="ws-badge ws-badge-mat">✏️ text: ' + (matVal || '<span style="color:#94a3b8;">자재명 직접 입력</span>') + '</span>';
+                            td2.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                editCellTextCustom(td2, rIdx, 'workTarget', '자재명을 입력하세요...');
+                            });
+                        } else {
+                            // "공급실" 또는 "설비" 선택 시 ➔ checkcombobox (검색 기능 포함)
+                            var targetNames = getWorkTargetNames(row.workTarget);
+                            var categoryClass = catVal === 'Room' ? 'ws-badge-room' : 'ws-badge-ut';
+                            
+                            if (targetNames) {
+                                var nameList = targetNames.split(', ');
+                                var badgesHtml = nameList.map(n => '<span class="ws-badge ' + categoryClass + '">' + n + '</span>').join('');
+                                td2.innerHTML = '<div class="ws-multiline-container">' + badgesHtml + '</div>';
+                            } else {
+                                td2.innerHTML = '<span style="color:#94a3b8;">- 선택 클릭 -</span>';
+                            }
+
+                            td2.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                editCellCheckCombo(td2, rIdx, catVal);
+                            });
+                        }
+                        tr.appendChild(td2);
+
+                        // 3열: 비고 (text)
+                        var td3 = document.createElement('td');
+                        td3.innerHTML = '<span>' + (row.remark || '') + '</span>';
+                        td3.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            editCellTextCustom(td3, rIdx, 'remark', '비고 입력...');
+                        });
+                        tr.appendChild(td3);
+
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // Edit Mode: Select Column
+                function editCellSelect(td, rIdx) {
+                    if (td.querySelector('select')) return;
+
+                    var currentVal = dltGridData[rIdx].workType;
+                    var select = document.createElement('select');
+                    select.className = 'ws-grid-select';
+                    
+                    var defaultOpt = document.createElement('option');
+                    defaultOpt.value = '';
+                    defaultOpt.textContent = '- 선택 -';
+                    select.appendChild(defaultOpt);
+
+                    dltWorkType.forEach(function(item) {
+                        var opt = document.createElement('option');
+                        opt.value = item.TYPE_CODE;
+                        opt.textContent = item.TYPE_NAME;
+                        if (item.TYPE_CODE === currentVal || item.TYPE_NAME === currentVal) {
+                            opt.selected = true;
+                        }
+                        select.appendChild(opt);
+                    });
+
+                    td.innerHTML = '';
+                    td.appendChild(select);
+                    select.focus();
+
+                    select.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+
+                    function saveAndClose() {
+                        var selectedCode = select.value;
+                        if (selectedCode) {
+                            var oldType = dltGridData[rIdx].workType;
+                            dltGridData[rIdx].workType = selectedCode;
+                            dltGridData[rIdx].workCategory = getWorkCategory(selectedCode);
+
+                            if (oldType !== selectedCode) {
+                                dltGridData[rIdx].workTarget = '';
+                            }
+                        }
+                        renderGrid();
+                    }
+
+                    select.addEventListener('change', function(e) {
+                        e.stopPropagation();
+                        saveAndClose();
+                    });
+
+                    setTimeout(function() {
+                        function onDocClick(e) {
+                            if (!select.contains(e.target)) {
+                                document.removeEventListener('click', onDocClick);
+                                saveAndClose();
+                            }
+                        }
+                        document.addEventListener('click', onDocClick);
+                    }, 100);
+                }
+
+                // Edit Mode: CheckComboBox Column (상단 실시간 검색 기능 포함)
+                function editCellCheckCombo(td, rIdx, rowCategory) {
+                    if (td.querySelector('.ws-grid-checkcombobox-container')) return;
+
+                    var currentVal = dltGridData[rIdx].workTarget || '';
+                    var selectedCodes = currentVal ? currentVal.split(',') : [];
+                    var filteredTargets = dltWorkTarget.filter(t => t.CATEGORY === rowCategory);
+
+                    var container = document.createElement('div');
+                    container.className = 'ws-grid-checkcombobox-container';
+
+                    var display = document.createElement('div');
+                    display.className = 'ws-grid-checkcombobox-display';
+                    display.innerHTML = '<span>' + (getWorkTargetNames(currentVal) || '- 전체 선택 -') + '</span> ▾';
+
+                    var dropdown = document.createElement('div');
+                    dropdown.className = 'ws-grid-checkcombobox-dropdown show';
+
+                    // 🔍 상단 실시간 검색창 영역
+                    var searchHeader = document.createElement('div');
+                    searchHeader.className = 'ws-search-header';
+                    var searchInput = document.createElement('input');
+                    searchInput.type = 'text';
+                    searchInput.className = 'ws-search-input';
+                    searchInput.placeholder = '🔍 대상 항목 검색...';
+                    searchHeader.appendChild(searchInput);
+                    dropdown.appendChild(searchHeader);
+
+                    var scrollList = document.createElement('div');
+                    scrollList.className = 'ws-checkcombobox-items-scroll';
+
+                    function renderDropdownList() {
+                        var currentVal = dltGridData[rIdx].workTarget || '';
+                        var selectedCodes = currentVal ? currentVal.split(',') : [];
+
+                        // 📌 체크된 항목 상단 정렬 (Sort checked items to top)
+                        var sortedTargets = filteredTargets.slice().sort(function(a, b) {
+                            var aChecked = selectedCodes.includes(a.TARGET_CODE);
+                            var bChecked = selectedCodes.includes(b.TARGET_CODE);
+                            if (aChecked && !bChecked) return -1;
+                            if (!aChecked && bChecked) return 1;
+                            return 0;
+                        });
+
+                        scrollList.innerHTML = '';
+
+                        // 전체 선택 옵션
+                        var allItem = document.createElement('div');
+                        allItem.className = 'ws-grid-checkcombobox-item';
+                        allItem.style.fontWeight = 'bold';
+                        allItem.style.borderBottom = '1px solid #e2e8f0';
+                        var isAllChecked = filteredTargets.length > 0 && filteredTargets.every(t => selectedCodes.includes(t.TARGET_CODE));
+                        allItem.innerHTML = '<input type="checkbox" id="chk_grid_all" ' + (isAllChecked ? 'checked' : '') + '/> <label for="chk_grid_all">- 전체 선택 (' + rowCategory + ') -</label>';
+                        scrollList.appendChild(allItem);
+
+                        allItem.querySelector('input').addEventListener('change', function(e) {
+                            var checked = e.target.checked;
+                            var newCodes = checked ? filteredTargets.map(t => t.TARGET_CODE) : [];
+                            dltGridData[rIdx].workTarget = newCodes.join(',');
+                            display.querySelector('span').textContent = getWorkTargetNames(dltGridData[rIdx].workTarget) || '- 전체 선택 -';
+                            renderDropdownList();
+                        });
+
+                        // 체크된 항목 우선순위 렌더링
+                        sortedTargets.forEach(function(item) {
+                            var itemDiv = document.createElement('div');
+                            var isChecked = selectedCodes.includes(item.TARGET_CODE);
+                            itemDiv.className = 'ws-grid-checkcombobox-item' + (isChecked ? ' checked-item' : '');
+                            itemDiv.innerHTML = '<input type="checkbox" class="grid-chk-item" value="' + item.TARGET_CODE + '" ' + (isChecked ? 'checked' : '') + '/> <label>' + item.TARGET_NAME + '</label>';
+
+                            var chkInput = itemDiv.querySelector('input');
+                            chkInput.addEventListener('change', function(e) {
+                                var newCodes = [];
+                                scrollList.querySelectorAll('.grid-chk-item').forEach(function(chk) {
+                                    if (chk.checked) newCodes.push(chk.value);
+                                });
+                                dltGridData[rIdx].workTarget = newCodes.join(',');
+                                display.querySelector('span').textContent = getWorkTargetNames(dltGridData[rIdx].workTarget) || '- 전체 선택 -';
+                                renderDropdownList();
+                            });
+
+                            scrollList.appendChild(itemDiv);
+                        });
+
+                        // 실시간 검색 키워드 유지
+                        var query = searchInput.value.toLowerCase().trim();
+                        if (query) {
+                            scrollList.querySelectorAll('.ws-grid-checkcombobox-item').forEach(function(itemDiv) {
+                                if (itemDiv.querySelector('#chk_grid_all')) return;
+                                var labelText = itemDiv.textContent.toLowerCase();
+                                itemDiv.style.display = (labelText.indexOf(query) >= 0) ? 'flex' : 'none';
+                            });
+                        }
+                    }
+
+                    renderDropdownList();
+
+                    dropdown.appendChild(scrollList);
+                    container.appendChild(display);
+                    container.appendChild(dropdown);
+                    td.innerHTML = '';
+                    td.appendChild(container);
+
+                    setTimeout(function() { searchInput.focus(); }, 120);
+
+                    // 실시간 키워드 검색 필터링 이벤트
+                    searchInput.addEventListener('input', function(e) {
+                        var query = e.target.value.toLowerCase().trim();
+                        scrollList.querySelectorAll('.ws-grid-checkcombobox-item').forEach(function(itemDiv) {
+                            if (itemDiv.querySelector('#chk_grid_all')) return; // 전체선택은 유지
+                            var labelText = itemDiv.textContent.toLowerCase();
+                            if (!query || labelText.indexOf(query) >= 0) {
+                                itemDiv.style.display = 'flex';
+                            } else {
+                                itemDiv.style.display = 'none';
+                            }
+                        });
+                    });
+
+                    container.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+
+                    display.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdown.classList.toggle('show');
+                    });
+
+                    function updateAndSave() {
+                        var newCodes = [];
+                        dropdown.querySelectorAll('.grid-chk-item').forEach(function(chk) {
+                            if (chk.checked) newCodes.push(chk.value);
+                        });
+                        dltGridData[rIdx].workTarget = newCodes.join(',');
+                    }
+
+                    dropdown.querySelectorAll('input[type="checkbox"]').forEach(function(input) {
+                        input.addEventListener('change', function(e) {
+                            if (e.target.id === 'chk_grid_all') {
+                                var checked = e.target.checked;
+                                dropdown.querySelectorAll('.grid-chk-item').forEach(c => c.checked = checked);
+                            }
+                            updateAndSave();
+                            display.querySelector('span').textContent = getWorkTargetNames(dltGridData[rIdx].workTarget) || '- 전체 선택 -';
+                        });
+                    });
+
+                    setTimeout(function() {
+                        function onDocClick(e) {
+                            if (!container.contains(e.target)) {
+                                document.removeEventListener('click', onDocClick);
+                                renderGrid();
+                            }
+                        }
+                        document.addEventListener('click', onDocClick);
+                    }, 100);
+                }
+
+                // Edit Mode: Custom Text Column
+                function editCellTextCustom(td, rIdx, colField, placeholderStr) {
+                    if (td.querySelector('input')) return;
+
+                    var input = document.createElement('input');
+                    input.className = 'ws-grid-input';
+                    input.placeholder = placeholderStr || '';
+                    input.value = dltGridData[rIdx][colField] || '';
+                    td.innerHTML = '';
+                    td.appendChild(input);
+                    input.focus();
+
+                    input.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+
+                    function save() {
+                        dltGridData[rIdx][colField] = input.value;
+                        renderGrid();
+                    }
+
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') save();
+                    });
+
+                    setTimeout(function() {
+                        function onDocClick(e) {
+                            if (!input.contains(e.target)) {
+                                document.removeEventListener('click', onDocClick);
+                                save();
+                            }
+                        }
+                        document.addEventListener('click', onDocClick);
+                    }, 100);
+                }
+
+                // Render Triggers
+                var triggers = document.querySelectorAll('w2\\:trigger, trigger');
+                triggers.forEach(function(trig) {
+                    var trigId = trig.getAttribute('id');
+                    
+                    var onclickHandler = trig.getAttribute('ev:onclick') || trig.getAttribute('onclick');
+                    if (!onclickHandler && trig.attributes) {
+                        for (var a = 0; a < trig.attributes.length; a++) {
+                            if (trig.attributes[a].name.toLowerCase().indexOf('onclick') >= 0) {
+                                onclickHandler = trig.attributes[a].value;
+                                break;
+                            }
+                        }
+                    }
+
+                    var labelNode = trig.querySelector('w2\\:label, label');
+                    var labelText = labelNode ? getNodeText(labelNode) : trigId;
+                    var cssClass = trig.getAttribute('class') || 'ws-btn';
+
+                    var btn = document.createElement('button');
+                    btn.id = trigId;
+                    btn.className = cssClass;
+                    btn.textContent = labelText;
+
+                    btn.addEventListener('click', function(e) {
+                        if (onclickHandler && window.scwin && typeof window.scwin[onclickHandler] === 'function') {
+                            window.scwin[onclickHandler](e);
+                        } else if (trigId && window.scwin && typeof window.scwin[trigId + '_onclick'] === 'function') {
+                            window.scwin[trigId + '_onclick'](e);
+                        } else {
+                            console.log("Button clicked:", trigId, onclickHandler);
+                        }
+                    });
+
+                    trig.parentNode.replaceChild(btn, trig);
+                });
+
+                // Render Textboxes
+                var textboxes = document.querySelectorAll('w2\\:textbox, textbox');
+                textboxes.forEach(function(tb) {
+                    var tbId = tb.getAttribute('id');
+                    var labelText = tb.getAttribute('label') || getNodeText(tb);
+                    var cssClass = tb.getAttribute('class') || '';
+                    var styleAttr = tb.getAttribute('style') || '';
+
+                    var span = document.createElement('span');
+                    if (tbId) span.id = tbId;
+                    if (cssClass) span.className = cssClass;
+                    if (styleAttr) span.setAttribute('style', styleAttr);
+                    span.textContent = labelText;
+
+                    tb.parentNode.replaceChild(span, tb);
+                });
+
+                renderGrid();
+
+                if (window.scwin && typeof window.scwin.onpageload === 'function') {
+                    window.scwin.onpageload();
+                }
+            })();
+        </script>
+    </body>
+</html>
