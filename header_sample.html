@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:w2="http://www.inswave.com/websquare" 
+    xmlns:ui="http://www.inswave.com/websquare/ui">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WebSquare Multi-Header GridView 샘플</title>
+        <style>
+            body {
+                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                background-color: #f4f6f9;
+                margin: 0;
+                padding: 30px;
+                color: #333;
+            }
+            .ws-card {
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                padding: 24px 30px;
+                max-width: 1100px;
+                margin: 0 auto;
+                position: relative;
+            }
+            .ws-header-nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            .ws-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1e293b;
+                margin: 0 0 6px 0;
+            }
+            .ws-subtitle {
+                font-size: 13.5px;
+                color: #64748b;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #e2e8f0;
+                padding-bottom: 12px;
+                line-height: 1.6;
+            }
+            .ws-subtitle strong { color: #1e293b; }
+            
+            .ws-nav-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: #f1f5f9;
+                color: #334155;
+                padding: 8px 14px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 600;
+                border: 1px solid #cbd5e1;
+                transition: all 0.2s;
+            }
+            .ws-nav-btn:hover {
+                background: #e2e8f0;
+                color: #0f172a;
+            }
+            .ws-btn-group {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .ws-btn {
+                background-color: #2563eb;
+                color: #ffffff;
+                border: none;
+                border-radius: 6px;
+                padding: 8px 14px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s, transform 0.1s;
+            }
+            .ws-btn:hover { background-color: #1d4ed8; }
+            .ws-btn-secondary { background-color: #475569; }
+            .ws-btn-secondary:hover { background-color: #334155; }
+            .ws-btn-danger { background-color: #ef4444; }
+            .ws-btn-danger:hover { background-color: #dc2626; }
+            .ws-btn-success { background-color: #10b981; }
+            .ws-btn-success:hover { background-color: #059669; }
+            .ws-btn-sm { padding: 4px 10px; font-size: 12px; }
+
+            /* WebSquare GridView Multi-Header Table Style */
+            .ws-grid-wrapper {
+                overflow-x: auto;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                border: 1px solid #cbd5e1;
+            }
+            .ws-grid-container {
+                width: 100%;
+                background: #fff;
+            }
+            .ws-grid-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 13.5px;
+                min-width: 900px;
+            }
+            .ws-grid-table th {
+                background-color: #f1f5f9;
+                color: #334155;
+                font-weight: 700;
+                padding: 9px 12px;
+                text-align: center;
+                border-bottom: 1px solid #cbd5e1;
+                border-right: 1px solid #cbd5e1;
+            }
+            .ws-grid-table th.header-group-1 {
+                background-color: #e2e8f0;
+                color: #0f172a;
+                font-size: 14px;
+                border-bottom: 1px solid #94a3b8;
+            }
+            .ws-grid-table th:last-child { border-right: none; }
+
+            .ws-grid-table td {
+                padding: 6px 10px;
+                border-bottom: 1px solid #e2e8f0;
+                border-right: 1px solid #e2e8f0;
+                color: #1e293b;
+                position: relative;
+                height: 42px;
+                box-sizing: border-box;
+                vertical-align: middle;
+            }
+            .ws-grid-table td:last-child { border-right: none; }
+            .ws-grid-table tr:hover { background-color: #f8fafc; }
+            .ws-grid-table tr.selected { background-color: #eff6ff; }
+
+            .seq-col {
+                text-align: center;
+                background-color: #fafafa;
+                font-weight: 600;
+                color: #64748b;
+                width: 50px;
+            }
+
+            /* Member Cell & Hover Delete Icon */
+            .ws-name-cell {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+                cursor: pointer;
+            }
+            .ws-name-text {
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .ws-name-text.empty {
+                color: #94a3b8;
+                font-style: italic;
+                font-size: 12.5px;
+            }
+
+            .ws-cell-input {
+                width: 100%;
+                height: 30px;
+                border: 2px solid #2563eb;
+                border-radius: 4px;
+                padding: 0 8px;
+                font-size: 13.5px;
+                font-weight: 600;
+                outline: none;
+                box-sizing: border-box;
+                background-color: #ffffff;
+            }
+            
+            .ws-delete-btn {
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.15s ease;
+                background-color: #fee2e2;
+                color: #ef4444;
+                border: 1px solid #fca5a5;
+                border-radius: 50%;
+                width: 22px;
+                height: 22px;
+                min-width: 22px;
+                font-size: 12px;
+                line-height: 1;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 6px;
+                padding: 0;
+            }
+            .ws-name-cell:hover .ws-delete-btn {
+                opacity: 1;
+                visibility: visible;
+            }
+            .ws-delete-btn:hover {
+                background-color: #ef4444;
+                color: #ffffff;
+                border-color: #dc2626;
+                transform: scale(1.15);
+            }
+
+            .ws-empno-cell {
+                font-family: 'Fira Code', monospace;
+                color: #475569;
+                font-size: 13px;
+            }
+
+            .ws-log-box {
+                padding: 14px 18px;
+                background-color: #0f172a;
+                border-radius: 8px;
+                font-family: 'Fira Code', monospace;
+                font-size: 13px;
+                color: #38bdf8;
+                white-space: pre-wrap;
+                max-height: 220px;
+                overflow-y: auto;
+            }
+
+            /* Employee Search Modal Dialog */
+            .ws-modal-backdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(15, 23, 42, 0.55);
+                backdrop-filter: blur(3px);
+                z-index: 9999;
+                align-items: center;
+                justify-content: center;
+            }
+            .ws-modal-backdrop.show {
+                display: flex;
+            }
+            .ws-modal-dialog {
+                background: #ffffff;
+                border-radius: 12px;
+                width: 580px;
+                max-width: 92vw;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                overflow: hidden;
+                animation: modalFadeIn 0.2s ease-out;
+            }
+            @keyframes modalFadeIn {
+                from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            .ws-modal-header {
+                background-color: #1e293b;
+                color: #ffffff;
+                padding: 16px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .ws-modal-title {
+                font-size: 16px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .ws-modal-close {
+                background: none;
+                border: none;
+                color: #94a3b8;
+                font-size: 20px;
+                cursor: pointer;
+                padding: 0;
+                line-height: 1;
+            }
+            .ws-modal-close:hover { color: #ffffff; }
+
+            .ws-modal-body {
+                padding: 20px;
+            }
+            .ws-modal-search-bar {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+            .ws-modal-input {
+                flex: 1;
+                height: 38px;
+                border: 1px solid #cbd5e1;
+                border-radius: 6px;
+                padding: 0 12px;
+                font-size: 14px;
+                outline: none;
+            }
+            .ws-modal-input:focus { border-color: #2563eb; }
+
+            .ws-modal-table-wrapper {
+                max-height: 260px;
+                overflow-y: auto;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+            }
+            .ws-modal-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 13.5px;
+            }
+            .ws-modal-table th {
+                background-color: #f8fafc;
+                color: #475569;
+                font-weight: 700;
+                padding: 8px 12px;
+                text-align: left;
+                border-bottom: 1px solid #e2e8f0;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            .ws-modal-table td {
+                padding: 8px 12px;
+                border-bottom: 1px solid #f1f5f9;
+                color: #1e293b;
+            }
+            .ws-modal-table tr:hover { background-color: #f1f5f9; cursor: pointer; }
+
+            .ws-modal-footer {
+                padding: 12px 20px;
+                background-color: #f8fafc;
+                border-top: 1px solid #e2e8f0;
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+            }
+
+            #ws_metadata_container { display: none; }
+        </style>
+    </head>
+    <body>
+        <div class="ws-card">
+            <div class="ws-header-nav">
+                <div>
+                    <h1 class="ws-title">WebSquare GridView 다중 헤더 &amp; 사원 조회 샘플</h1>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="sample.html" class="ws-nav-btn">
+                        <span>메인 샘플</span>
+                    </a>
+                    <a href="grid_sample.html" class="ws-nav-btn">
+                        <span>전체 그리드</span>
+                    </a>
+                    <a href="tab_main.html" class="ws-nav-btn" style="background:#2563eb; color:#fff; border-color:#2563eb;">
+                        <span>3개 탭 엑셀 샘플 ▶</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="ws-subtitle">
+                • <strong>다중 헤더 구조</strong>: 1행(근무 조: 통상조, 1조, 2조, 3조) &nbsp;|&nbsp; 2행(조원 및 사번 상세)<br/>
+                • <strong>클릭 편집 &amp; 사원 자동 조회</strong>: [조원] 셀 클릭 후 이름 입력 ➜ <kbd>Enter</kbd> 누름<br/>
+                &nbsp;&nbsp;- <strong>1명 조회 시</strong>: 해당 사원의 사번이 그리드에 <strong>자동 채움</strong> 됩니다. (예: `김철수` 입력 ➜ `EMP-1001` 자동)<br/>
+                &nbsp;&nbsp;- <strong>0명 또는 2명 이상 조회 시</strong>: <strong>사원 조회 팝업창</strong>이 뜨며 후보 목록 중 선택 가능합니다. (예: `김민수`, `박지성`, `김` 입력)
+            </div>
+
+            <div class="ws-btn-group">
+                <button type="button" class="ws-btn ws-btn-success" onclick="addRow()">+ 행 추가</button>
+                <button type="button" class="ws-btn ws-btn-danger" onclick="deleteSelectedRow()">- 선택 행 삭제</button>
+                <button type="button" class="ws-btn ws-btn-secondary" onclick="resetGridData()">데이터 초기화</button>
+                <button type="button" class="ws-btn" onclick="printDataList()">DataList 데이터 출력</button>
+            </div>
+
+            <!-- Grid View Container -->
+            <div class="ws-grid-wrapper">
+                <div class="ws-grid-container">
+                    <table class="ws-grid-table" id="grd_shift_table">
+                        <thead>
+                            <!-- Header Row 1 -->
+                            <tr>
+                                <th rowspan="2" class="seq-col">NO</th>
+                                <th colspan="2" class="header-group-1">통상조</th>
+                                <th colspan="2" class="header-group-1">1조</th>
+                                <th colspan="2" class="header-group-1">2조</th>
+                                <th colspan="2" class="header-group-1">3조</th>
+                            </tr>
+                            <!-- Header Row 2 -->
+                            <tr>
+                                <th>조원</th>
+                                <th>사번</th>
+                                <th>조원</th>
+                                <th>사번</th>
+                                <th>조원</th>
+                                <th>사번</th>
+                                <th>조원</th>
+                                <th>사번</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grd_shift_tbody">
+                            <!-- Dynamic Body Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <div style="font-weight: 700; margin-bottom: 8px; color: #334155; display: flex; justify-content: space-between; align-items: center;">
+                    <span>동작 및 삭제 / 사원조회 이벤트 로그</span>
+                    <button class="ws-btn ws-btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="clearLog()">로그 창 비우기</button>
+                </div>
+                <div class="ws-log-box" id="log_output">Grid 데이터 초기화 완료. 조원 셀을 클릭 후 이름을 입력하고 Enter를 누르면 사원 조회가 진행됩니다.</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- Employee Search Popup Modal Dialog                                       -->
+        <!-- ========================================================================= -->
+        <div class="ws-modal-backdrop" id="empSearchModal">
+            <div class="ws-modal-dialog">
+                <div class="ws-modal-header">
+                    <div class="ws-modal-title">
+                        <span>🔍 사원 검색 팝업</span>
+                    </div>
+                    <button class="ws-modal-close" onclick="closeEmpModal()">✕</button>
+                </div>
+                <div class="ws-modal-body">
+                    <div class="ws-modal-search-bar">
+                        <input type="text" class="ws-modal-input" id="modalSearchInput" placeholder="성명 또는 사번 검색..." onkeyup="filterModalEmpList()" />
+                        <button class="ws-btn" onclick="filterModalEmpList()">검색</button>
+                    </div>
+                    <div class="ws-modal-table-wrapper">
+                        <table class="ws-modal-table">
+                            <thead>
+                                <tr>
+                                    <th>사번</th>
+                                    <th>성명</th>
+                                    <th>소속 조</th>
+                                    <th>직급</th>
+                                    <th style="text-align: center;">선택</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalEmpTbody">
+                                <!-- Filtered Employees List -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="ws-modal-footer">
+                    <button class="ws-btn ws-btn-secondary" onclick="closeEmpModal()">닫기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- WebSquare XML Metadata Declaration (WebSquare Engine Spec)                -->
+        <!-- ========================================================================= -->
+        <div id="ws_metadata_container">
+            <w2:dataList id="dlt_shiftGroup" baseNode="list" repeatNode="map">
+                <w2:columnInfo>
+                    <w2:column id="normal_name" name="통상조 조원" dataType="text"></w2:column>
+                    <w2:column id="normal_empno" name="통상조 사번" dataType="text"></w2:column>
+                    <w2:column id="shift1_name" name="1조 조원" dataType="text"></w2:column>
+                    <w2:column id="shift1_empno" name="1조 사번" dataType="text"></w2:column>
+                    <w2:column id="shift2_name" name="2조 조원" dataType="text"></w2:column>
+                    <w2:column id="shift2_empno" name="2조 사번" dataType="text"></w2:column>
+                    <w2:column id="shift3_name" name="3조 조원" dataType="text"></w2:column>
+                    <w2:column id="shift3_empno" name="3조 사번" dataType="text"></w2:column>
+                </w2:columnInfo>
+            </w2:dataList>
+
+            <w2:gridView id="grd_shift" dataList="dlt_shiftGroup" style="height: 300px;" autoFit="allColumn" editModeEvent="onclick">
+                <w2:header id="header1">
+                    <w2:row id="row1">
+                        <w2:column id="h_normal" value="통상조" colSpan="2" rowSpan="1" />
+                        <w2:column id="h_shift1" value="1조" colSpan="2" rowSpan="1" />
+                        <w2:column id="h_shift2" value="2조" colSpan="2" rowSpan="1" />
+                        <w2:column id="h_shift3" value="3조" colSpan="2" rowSpan="1" />
+                    </w2:row>
+                    <w2:row id="row2">
+                        <w2:column id="h_normal_name" value="조원" />
+                        <w2:column id="h_normal_empno" value="사번" />
+                        <w2:column id="h_shift1_name" value="조원" />
+                        <w2:column id="h_shift1_empno" value="사번" />
+                        <w2:column id="h_shift2_name" value="조원" />
+                        <w2:column id="h_shift2_empno" value="사번" />
+                        <w2:column id="h_shift3_name" value="조원" />
+                        <w2:column id="h_shift3_empno" value="사번" />
+                    </w2:row>
+                </w2:header>
+                <w2:gBody id="gBody1">
+                    <w2:row id="row3">
+                        <w2:column id="normal_name" inputType="text" />
+                        <w2:column id="normal_empno" inputType="text" />
+                        <w2:column id="shift1_name" inputType="text" />
+                        <w2:column id="shift1_empno" inputType="text" />
+                        <w2:column id="shift2_name" inputType="text" />
+                        <w2:column id="shift2_empno" inputType="text" />
+                        <w2:column id="shift3_name" inputType="text" />
+                        <w2:column id="shift3_empno" inputType="text" />
+                    </w2:row>
+                </w2:gBody>
+            </w2:gridView>
+        </div>
+
+        <!-- Dynamic Simulation Engine Script -->
+        <script type="text/javascript">
+            // Master Employee DB for Search Simulation
+            var empMasterList = [
+                { empno: "EMP-1001", name: "김철수", dept: "통상조", position: "과장" },
+                { empno: "EMP-1002", name: "정수진", dept: "통상조", position: "대리" },
+                { empno: "EMP-1003", name: "한지은", dept: "통상조", position: "사원" },
+                { empno: "EMP-1004", name: "유재석", dept: "통상조", position: "팀장" },
+                { empno: "EMP-2001", name: "이영희", dept: "1조", position: "주임" },
+                { empno: "EMP-2002", name: "강하늘", dept: "1조", position: "대리" },
+                { empno: "EMP-2003", name: "오세훈", dept: "1조", position: "과장" },
+                { empno: "EMP-2004", name: "하동훈", dept: "1조", position: "사원" },
+                { empno: "EMP-3001", name: "박민수", dept: "2조", position: "대리" },
+                { empno: "EMP-3002", name: "윤서준", dept: "2조", position: "과장" },
+                { empno: "EMP-3003", name: "송지효", dept: "2조", position: "주임" },
+                { empno: "EMP-3004", name: "김종국", dept: "2조", position: "팀장" },
+                { empno: "EMP-4001", name: "최동현", dept: "3조", position: "사원" },
+                { empno: "EMP-4002", name: "임지민", dept: "3조", position: "대리" },
+                { empno: "EMP-4003", name: "신동엽", dept: "3조", position: "부장" },
+                { empno: "EMP-4004", name: "양세찬", dept: "3조", position: "주임" },
+                // Duplicate Names for Popup Trigger Test
+                { empno: "EMP-5001", name: "김민수", dept: "1조", position: "사원" },
+                { empno: "EMP-5002", name: "김민수", dept: "3조", position: "과장" },
+                { empno: "EMP-6001", name: "박지성", dept: "2조", position: "차장" },
+                { empno: "EMP-6002", name: "박지성", dept: "통상조", position: "대리" }
+            ];
+
+            // Initial Grid Row Data
+            var initialGridData = [
+                {
+                    normal_name: "김철수", normal_empno: "EMP-1001",
+                    shift1_name: "이영희", shift1_empno: "EMP-2001",
+                    shift2_name: "박민수", shift2_empno: "EMP-3001",
+                    shift3_name: "최동현", shift3_empno: "EMP-4001"
+                },
+                {
+                    normal_name: "정수진", normal_empno: "EMP-1002",
+                    shift1_name: "강하늘", shift1_empno: "EMP-2002",
+                    shift2_name: "윤서준", shift2_empno: "EMP-3002",
+                    shift3_name: "임지민", shift3_empno: "EMP-4002"
+                },
+                {
+                    normal_name: "한지은", normal_empno: "EMP-1003",
+                    shift1_name: "오세훈", shift1_empno: "EMP-2003",
+                    shift2_name: "송지효", shift2_empno: "EMP-3003",
+                    shift3_name: "신동엽", shift3_empno: "EMP-4003"
+                }
+            ];
+
+            var gridData = [];
+            var selectedRowIndex = null;
+            var activeEditCell = null; // { rowIndex, groupKey }
+            var activeModalTarget = null; // { rowIndex, groupKey }
+
+            function log(msg) {
+                var logBox = document.getElementById('log_output');
+                var time = new Date().toLocaleTimeString();
+                logBox.innerText = "[" + time + "] " + msg + "\n" + logBox.innerText;
+            }
+
+            function clearLog() {
+                document.getElementById('log_output').innerText = "";
+            }
+
+            function renderGrid() {
+                var tbody = document.getElementById('grd_shift_tbody');
+                tbody.innerHTML = '';
+
+                gridData.forEach(function(row, index) {
+                    var tr = document.createElement('tr');
+                    if (selectedRowIndex === index) {
+                        tr.classList.add('selected');
+                    }
+                    tr.onclick = function(e) {
+                        if (e.target.classList.contains('ws-delete-btn')) return;
+                        selectedRowIndex = index;
+                    };
+
+                    // NO Column
+                    var tdSeq = document.createElement('td');
+                    tdSeq.className = 'seq-col';
+                    tdSeq.innerText = index + 1;
+                    tr.appendChild(tdSeq);
+
+                    var groups = [
+                        { key: 'normal', label: '통상조' },
+                        { key: 'shift1', label: '1조' },
+                        { key: 'shift2', label: '2조' },
+                        { key: 'shift3', label: '3조' }
+                    ];
+
+                    groups.forEach(function(g) {
+                        var nameKey = g.key + '_name';
+                        var empnoKey = g.key + '_empno';
+                        var nameVal = row[nameKey] || '';
+                        var empnoVal = row[empnoKey] || '';
+
+                        var tdName = document.createElement('td');
+                        
+                        // Is this cell currently being edited?
+                        if (activeEditCell && activeEditCell.rowIndex === index && activeEditCell.groupKey === g.key) {
+                            var input = document.createElement('input');
+                            input.type = 'text';
+                            input.className = 'ws-cell-input';
+                            input.value = nameVal;
+                            
+                            input.onkeydown = function(e) {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    var query = input.value.trim();
+                                    processEmpSearch(query, index, g.key, g.label);
+                                } else if (e.key === 'Escape') {
+                                    activeEditCell = null;
+                                    renderGrid();
+                                }
+                            };
+
+                            input.onclick = function(e) { e.stopPropagation(); };
+
+                            tdName.appendChild(input);
+                            setTimeout(function() { input.focus(); input.select(); }, 50);
+                        } else {
+                            // Display Mode
+                            var nameCellDiv = document.createElement('div');
+                            nameCellDiv.className = 'ws-name-cell';
+                            nameCellDiv.onclick = function(e) {
+                                e.stopPropagation();
+                                activeEditCell = { rowIndex: index, groupKey: g.key };
+                                renderGrid();
+                            };
+
+                            var spanText = document.createElement('span');
+                            spanText.className = 'ws-name-text' + (nameVal ? '' : ' empty');
+                            spanText.innerText = nameVal || '(클릭하여 사원검색)';
+
+                            var btnDelete = document.createElement('button');
+                            btnDelete.className = 'ws-delete-btn';
+                            btnDelete.title = g.label + ' 조원 삭제';
+                            btnDelete.innerHTML = '✕';
+                            btnDelete.onclick = function(e) {
+                                e.stopPropagation();
+                                deleteMember(index, g.key, g.label, nameVal);
+                            };
+
+                            nameCellDiv.appendChild(spanText);
+                            if (nameVal) {
+                                nameCellDiv.appendChild(btnDelete);
+                            }
+                            tdName.appendChild(nameCellDiv);
+                        }
+                        
+                        tr.appendChild(tdName);
+
+                        // Employee ID TD
+                        var tdEmpno = document.createElement('td');
+                        tdEmpno.className = 'ws-empno-cell';
+                        tdEmpno.innerText = empnoVal || '-';
+                        tr.appendChild(tdEmpno);
+                    });
+
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Employee Search Logic on Enter Press
+            function processEmpSearch(query, rowIndex, groupKey, groupLabel) {
+                if (!query) {
+                    activeEditCell = null;
+                    gridData[rowIndex][groupKey + '_name'] = '';
+                    gridData[rowIndex][groupKey + '_empno'] = '';
+                    log("ℹ️ [" + (rowIndex + 1) + "행 " + groupLabel + "] 이름을 입력하지 않아 초기화 되었습니다.");
+                    renderGrid();
+                    return;
+                }
+
+                // Filter master list
+                var matches = empMasterList.filter(function(emp) {
+                    return emp.name.indexOf(query) >= 0 || emp.empno.indexOf(query) >= 0;
+                });
+
+                if (matches.length === 1) {
+                    // Case 1: Exactly 1 employee found -> Auto-fill Employee ID & Name
+                    var targetEmp = matches[0];
+                    gridData[rowIndex][groupKey + '_name'] = targetEmp.name;
+                    gridData[rowIndex][groupKey + '_empno'] = targetEmp.empno;
+                    activeEditCell = null;
+                    log("✅ [1명 단일 조회 성공] " + groupLabel + " 조원: '" + targetEmp.name + "' ➔ 사번 (" + targetEmp.empno + ") 이 자동 채워졌습니다.");
+                    renderGrid();
+                } else {
+                    // Case 2: 0 found or 2+ found -> Open Employee Search Popup Modal
+                    activeEditCell = null;
+                    renderGrid();
+                    log("🔍 [" + matches.length + "명 조회됨] 입력값: '" + query + "' ➔ 사원 조회 팝업창을 엽니다.");
+                    openEmpModal(query, rowIndex, groupKey, matches);
+                }
+            }
+
+            // Open Employee Search Modal
+            function openEmpModal(initialQuery, rowIndex, groupKey, matches) {
+                activeModalTarget = { rowIndex: rowIndex, groupKey: groupKey };
+                var modal = document.getElementById('empSearchModal');
+                var input = document.getElementById('modalSearchInput');
+                input.value = initialQuery || '';
+                modal.classList.add('show');
+                
+                renderModalTable(matches && matches.length > 0 ? matches : empMasterList);
+                setTimeout(function() { input.focus(); }, 100);
+            }
+
+            function closeEmpModal() {
+                var modal = document.getElementById('empSearchModal');
+                modal.classList.remove('show');
+                activeModalTarget = null;
+            }
+
+            function filterModalEmpList() {
+                var q = document.getElementById('modalSearchInput').value.trim().toLowerCase();
+                var filtered = empMasterList.filter(function(emp) {
+                    return emp.name.toLowerCase().indexOf(q) >= 0 || 
+                           emp.empno.toLowerCase().indexOf(q) >= 0 ||
+                           emp.dept.toLowerCase().indexOf(q) >= 0;
+                });
+                renderModalTable(filtered);
+            }
+
+            function renderModalTable(list) {
+                var tbody = document.getElementById('modalEmpTbody');
+                tbody.innerHTML = '';
+
+                if (!list || list.length === 0) {
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">검색된 사원이 없습니다.</td>';
+                    tbody.appendChild(tr);
+                    return;
+                }
+
+                list.forEach(function(emp) {
+                    var tr = document.createElement('tr');
+                    tr.onclick = function() { selectEmpFromModal(emp); };
+
+                    tr.innerHTML = 
+                        '<td style="font-family:\'Fira Code\',monospace; font-weight:600; color:#2563eb;">' + emp.empno + '</td>' +
+                        '<td style="font-weight:700;">' + emp.name + '</td>' +
+                        '<td>' + emp.dept + '</td>' +
+                        '<td>' + emp.position + '</td>' +
+                        '<td style="text-align:center;"><button class="ws-btn ws-btn-sm" onclick="event.stopPropagation(); selectEmpFromModal(' + JSON.stringify(emp).replace(/"/g, '&quot;') + ')">선택</button></td>';
+                    
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function selectEmpFromModal(emp) {
+                if (!activeModalTarget) return;
+                var rIdx = activeModalTarget.rowIndex;
+                var gKey = activeModalTarget.groupKey;
+
+                gridData[rIdx][gKey + '_name'] = emp.name;
+                gridData[rIdx][gKey + '_empno'] = emp.empno;
+
+                log("🎯 [팝업 선택 완료] 사원: '" + emp.name + "' (" + emp.empno + " / " + emp.dept + " " + emp.position + ") 의 정보로 업데이트 되었습니다.");
+                closeEmpModal();
+                renderGrid();
+            }
+
+            function deleteMember(rowIndex, groupKey, groupLabel, memberName) {
+                if (!memberName) return;
+                gridData[rowIndex][groupKey + '_name'] = '';
+                gridData[rowIndex][groupKey + '_empno'] = '';
+                log("🗑️ [" + (rowIndex + 1) + "행 " + groupLabel + "] 조원 삭제: '" + memberName + "' 님이 제거되었습니다.");
+                renderGrid();
+            }
+
+            function addRow() {
+                gridData.push({
+                    normal_name: "", normal_empno: "",
+                    shift1_name: "", shift1_empno: "",
+                    shift2_name: "", shift2_empno: "",
+                    shift3_name: "", shift3_empno: ""
+                });
+                selectedRowIndex = gridData.length - 1;
+                log("➕ 새로운 행이 추가되었습니다. (총 " + gridData.length + "행)");
+                renderGrid();
+            }
+
+            function deleteSelectedRow() {
+                if (selectedRowIndex === null || selectedRowIndex < 0 || selectedRowIndex >= gridData.length) {
+                    alert("삭제할 행을 먼저 클릭하여 선택해 주세요.");
+                    return;
+                }
+                gridData.splice(selectedRowIndex, 1);
+                log("➖ " + (selectedRowIndex + 1) + "번째 전체 행이 삭제되었습니다.");
+                selectedRowIndex = null;
+                renderGrid();
+            }
+
+            function resetGridData() {
+                gridData = JSON.parse(JSON.stringify(initialGridData));
+                selectedRowIndex = null;
+                log("🔄 그리드 데이터가 초기 데이터로 리셋되었습니다.");
+                renderGrid();
+            }
+
+            function printDataList() {
+                log("📊 [dlt_shiftGroup Current Data]\n" + JSON.stringify(gridData, null, 2));
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                resetGridData();
+
+                // Close active edit mode when clicking outside grid
+                document.addEventListener('click', function(e) {
+                    if (activeEditCell && !e.target.closest('#grd_shift_table')) {
+                        activeEditCell = null;
+                        renderGrid();
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

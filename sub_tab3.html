@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:w2="http://www.inswave.com/websquare">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sub Tab 3 - 자재 재고 관리</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 15px; background: #fff; }
+        .sub-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .ws-grid-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .ws-grid-table th { background-color: #f1f5f9; color: #334155; padding: 8px 10px; border: 1px solid #cbd5e1; text-align: center; }
+        .ws-grid-table td { padding: 8px 10px; border: 1px solid #e2e8f0; color: #1e293b; }
+        .ws-grid-table tr:hover { background-color: #f8fafc; }
+    </style>
+</head>
+<body>
+    <div class="sub-title">
+        <span>📦 서브페이지 3: 교체 자재 재고 목록</span>
+        <span style="font-size:12px; color:#64748b;">(DataList: dlt_tab3)</span>
+    </div>
+    
+    <table class="ws-grid-table" id="grd_tab3">
+        <thead>
+            <tr>
+                <th style="width:50px;">NO</th>
+                <th>입고일자</th>
+                <th>자재코드</th>
+                <th>자재명</th>
+                <th>재고수량</th>
+                <th>단가 (원)</th>
+            </tr>
+        </thead>
+        <tbody id="tbody_tab3">
+            <!-- Rendered dynamically -->
+        </tbody>
+    </table>
+
+    <div id="ws_metadata" style="display:none;">
+        <w2:dataList id="dlt_tab3">
+            <w2:columnInfo>
+                <w2:column id="inDate" name="입고일자" dataType="text"></w2:column>
+                <w2:column id="matCode" name="자재코드" dataType="text"></w2:column>
+                <w2:column id="matName" name="자재명" dataType="text"></w2:column>
+                <w2:column id="qty" name="재고수량" dataType="number"></w2:column>
+                <w2:column id="price" name="단가(원)" dataType="number"></w2:column>
+            </w2:columnInfo>
+        </w2:dataList>
+        <w2:gridView id="grd_tab3" dataList="dlt_tab3"></w2:gridView>
+    </div>
+
+    <script type="text/javascript">
+        var tab3Data = [
+            { inDate: "2026-08-20", matCode: "MAT-H14-01", matName: "HEPA 필터 (H14 등급)", qty: 45, price: 120000 },
+            { inDate: "2026-08-25", matCode: "MAT-UV-02", matName: "UV 살균 램프 40W", qty: 120, price: 35000 },
+            { inDate: "2026-08-28", matCode: "MAT-RO-03", matName: "RO 멤브레인 필터 8인치", qty: 15, price: 480000 },
+            { inDate: "2026-09-02", matCode: "MAT-CH-04", matName: "냉동기 컴프레서 오일 20L", qty: 8, price: 210000 },
+            { inDate: "2026-09-05", matCode: "MAT-BL-05", matName: "보일러 가스켓 개스킷 세트", qty: 60, price: 18000 }
+        ];
+
+        function getGridData() {
+            return tab3Data;
+        }
+
+        function renderSubGrid3() {
+            var tbody = document.getElementById('tbody_tab3');
+            tbody.innerHTML = '';
+            tab3Data.forEach(function(row, idx) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = 
+                    '<td style="text-align:center; font-weight:600; color:#64748b;">' + (idx + 1) + '</td>' +
+                    '<td style="text-align:center;">' + row.inDate + '</td>' +
+                    '<td style="font-family:\'Fira Code\',monospace; color:#2563eb; font-weight:600;">' + row.matCode + '</td>' +
+                    '<td style="font-weight:600;">' + row.matName + '</td>' +
+                    '<td style="text-align:right; font-weight:700; color:#0f172a;">' + row.qty.toLocaleString() + ' 개</td>' +
+                    '<td style="text-align:right; font-family:\'Fira Code\',monospace;">₩ ' + row.price.toLocaleString() + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+        renderSubGrid3();
+    </script>
+</body>
+</html>

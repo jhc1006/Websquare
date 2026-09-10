@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:w2="http://www.inswave.com/websquare">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sub Tab 1 - 공급실 작업 관리</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 15px; background: #fff; }
+        .sub-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .ws-grid-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .ws-grid-table th { background-color: #f1f5f9; color: #334155; padding: 8px 10px; border: 1px solid #cbd5e1; text-align: center; }
+        .ws-grid-table td { padding: 8px 10px; border: 1px solid #e2e8f0; color: #1e293b; }
+        .ws-grid-table tr:hover { background-color: #f8fafc; }
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+        .status-ok { background: #dcfce7; color: #15803d; }
+        .status-warn { background: #fef3c7; color: #b45309; }
+    </style>
+</head>
+<body>
+    <div class="sub-title">
+        <span>📋 서브페이지 1: 공급실 작업 관리 목록</span>
+        <span style="font-size:12px; color:#64748b;">(DataList: dlt_tab1)</span>
+    </div>
+    
+    <table class="ws-grid-table" id="grd_tab1">
+        <thead>
+            <tr>
+                <th style="width:50px;">NO</th>
+                <th>작업일자</th>
+                <th>공급실명</th>
+                <th>담당자</th>
+                <th>소독상태</th>
+                <th>특이사항</th>
+            </tr>
+        </thead>
+        <tbody id="tbody_tab1">
+            <!-- Rendered dynamically -->
+        </tbody>
+    </table>
+
+    <div id="ws_metadata" style="display:none;">
+        <w2:dataList id="dlt_tab1">
+            <w2:columnInfo>
+                <w2:column id="workDate" name="작업일자" dataType="text"></w2:column>
+                <w2:column id="roomName" name="공급실명" dataType="text"></w2:column>
+                <w2:column id="manager" name="담당자" dataType="text"></w2:column>
+                <w2:column id="status" name="소독상태" dataType="text"></w2:column>
+                <w2:column id="remark" name="특이사항" dataType="text"></w2:column>
+            </w2:columnInfo>
+        </w2:dataList>
+        <w2:gridView id="grd_tab1" dataList="dlt_tab1"></w2:gridView>
+    </div>
+
+    <script type="text/javascript">
+        var tab1Data = [
+            { workDate: "2026-09-01", roomName: "클린룸 A동", manager: "김철수", status: "양호", remark: "정기 소독 완료" },
+            { workDate: "2026-09-02", roomName: "무균 준비실", manager: "정수진", status: "양호", remark: "필터 점검 병행" },
+            { workDate: "2026-09-03", roomName: "원자재 보관실", manager: "한지은", status: "주의", remark: "습도 조절 완료" },
+            { workDate: "2026-09-04", roomName: "포장 작업실", manager: "유재석", status: "양호", remark: "특이사항 없음" },
+            { workDate: "2026-09-05", roomName: "클린룸 B동", manager: "이영희", status: "양호", remark: "UV 램프 교체" }
+        ];
+
+        function getGridData() {
+            return tab1Data;
+        }
+
+        function renderSubGrid1() {
+            var tbody = document.getElementById('tbody_tab1');
+            tbody.innerHTML = '';
+            tab1Data.forEach(function(row, idx) {
+                var tr = document.createElement('tr');
+                var badgeClass = row.status === '양호' ? 'status-ok' : 'status-warn';
+                tr.innerHTML = 
+                    '<td style="text-align:center; font-weight:600; color:#64748b;">' + (idx + 1) + '</td>' +
+                    '<td style="text-align:center;">' + row.workDate + '</td>' +
+                    '<td style="font-weight:600;">' + row.roomName + '</td>' +
+                    '<td>' + row.manager + '</td>' +
+                    '<td style="text-align:center;"><span class="status-badge ' + badgeClass + '">' + row.status + '</span></td>' +
+                    '<td>' + row.remark + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+        renderSubGrid1();
+    </script>
+</body>
+</html>

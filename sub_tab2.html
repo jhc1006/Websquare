@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:w2="http://www.inswave.com/websquare">
+<head>
+    <meta charset="UTF-8" />
+    <title>Sub Tab 2 - 설비 점검 관리</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 15px; background: #fff; }
+        .sub-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .ws-grid-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .ws-grid-table th { background-color: #f1f5f9; color: #334155; padding: 8px 10px; border: 1px solid #cbd5e1; text-align: center; }
+        .ws-grid-table td { padding: 8px 10px; border: 1px solid #e2e8f0; color: #1e293b; }
+        .ws-grid-table tr:hover { background-color: #f8fafc; }
+        .result-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+        .res-pass { background: #dbeafe; color: #1e40af; }
+        .res-fix { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <div class="sub-title">
+        <span>⚙️ 서브페이지 2: 설비 정기점검 목록</span>
+        <span style="font-size:12px; color:#64748b;">(DataList: dlt_tab2)</span>
+    </div>
+    
+    <table class="ws-grid-table" id="grd_tab2">
+        <thead>
+            <tr>
+                <th style="width:50px;">NO</th>
+                <th>점검일자</th>
+                <th>설비명</th>
+                <th>점검항목</th>
+                <th>점검결과</th>
+                <th>점검자</th>
+            </tr>
+        </thead>
+        <tbody id="tbody_tab2">
+            <!-- Rendered dynamically -->
+        </tbody>
+    </table>
+
+    <div id="ws_metadata" style="display:none;">
+        <w2:dataList id="dlt_tab2">
+            <w2:columnInfo>
+                <w2:column id="checkDate" name="점검일자" dataType="text"></w2:column>
+                <w2:column id="equipName" name="설비명" dataType="text"></w2:column>
+                <w2:column id="checkItem" name="점검항목" dataType="text"></w2:column>
+                <w2:column id="result" name="점검결과" dataType="text"></w2:column>
+                <w2:column id="inspector" name="점검자" dataType="text"></w2:column>
+            </w2:columnInfo>
+        </w2:dataList>
+        <w2:gridView id="grd_tab2" dataList="dlt_tab2"></w2:gridView>
+    </div>
+
+    <script type="text/javascript">
+        var tab2Data = [
+            { checkDate: "2026-09-01", equipName: "공조기 (AHU-01)", checkItem: "풍량 및 필터 차압 검사", result: "합격", inspector: "박민수" },
+            { checkDate: "2026-09-03", equipName: "순수제조장치 (RO/EDI)", checkItem: "비전도도 측정", result: "합격", inspector: "윤서준" },
+            { checkDate: "2026-09-05", equipName: "냉동기 (Chiller-02)", checkItem: "냉매 압력 및 누설 점검", result: "보수필요", inspector: "송지효" },
+            { checkDate: "2026-09-07", equipName: "보일러 (Boiler-01)", checkItem: "안전밸브 작동 점검", result: "합격", inspector: "김종국" },
+            { checkDate: "2026-09-09", equipName: "배기팬 (Exhaust Fan)", checkItem: "진동 및 소음 측정", result: "합격", inspector: "최동현" }
+        ];
+
+        function getGridData() {
+            return tab2Data;
+        }
+
+        function renderSubGrid2() {
+            var tbody = document.getElementById('tbody_tab2');
+            tbody.innerHTML = '';
+            tab2Data.forEach(function(row, idx) {
+                var tr = document.createElement('tr');
+                var badgeClass = row.result === '합격' ? 'res-pass' : 'res-fix';
+                tr.innerHTML = 
+                    '<td style="text-align:center; font-weight:600; color:#64748b;">' + (idx + 1) + '</td>' +
+                    '<td style="text-align:center;">' + row.checkDate + '</td>' +
+                    '<td style="font-weight:600;">' + row.equipName + '</td>' +
+                    '<td>' + row.checkItem + '</td>' +
+                    '<td style="text-align:center;"><span class="result-badge ' + badgeClass + '">' + row.result + '</span></td>' +
+                    '<td>' + row.inspector + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+        renderSubGrid2();
+    </script>
+</body>
+</html>

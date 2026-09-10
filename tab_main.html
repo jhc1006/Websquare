@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ev="http://www.w3.org/2001/xml-events"
+    xmlns:w2="http://www.inswave.com/websquare" 
+    xmlns:ui="http://www.inswave.com/websquare/ui">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WebSquare 3-Tab SubPage &amp; Batch Excel Export</title>
+        <style>
+            body {
+                font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                background-color: #f4f6f9;
+                margin: 0;
+                padding: 30px;
+                color: #333;
+            }
+            .ws-card {
+                background: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                padding: 24px 30px;
+                max-width: 1150px;
+                margin: 0 auto;
+            }
+            .ws-header-nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            .ws-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: #1e293b;
+                margin: 0 0 6px 0;
+            }
+            .ws-subtitle {
+                font-size: 13.5px;
+                color: #64748b;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #e2e8f0;
+                padding-bottom: 12px;
+                line-height: 1.6;
+            }
+            .ws-subtitle strong { color: #1e293b; }
+            
+            .ws-nav-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: #f1f5f9;
+                color: #334155;
+                padding: 7px 12px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-size: 12.5px;
+                font-weight: 600;
+                border: 1px solid #cbd5e1;
+                transition: all 0.2s;
+            }
+            .ws-nav-btn:hover {
+                background: #e2e8f0;
+                color: #0f172a;
+            }
+            .ws-btn-group {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 18px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .ws-btn {
+                background-color: #2563eb;
+                color: #ffffff;
+                border: none;
+                border-radius: 6px;
+                padding: 9px 16px;
+                font-size: 13.5px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: background-color 0.2s, transform 0.1s;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .ws-btn:hover { background-color: #1d4ed8; }
+            .ws-btn-excel-all {
+                background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+                color: #ffffff;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            }
+            .ws-btn-excel-all:hover {
+                background: linear-gradient(135deg, #047857 0%, #059669 100%);
+                transform: translateY(-1px);
+            }
+            .ws-btn-secondary { background-color: #475569; }
+            .ws-btn-secondary:hover { background-color: #334155; }
+            .ws-btn-outline {
+                background: #ffffff;
+                color: #059669;
+                border: 1.5px solid #10b981;
+            }
+            .ws-btn-outline:hover {
+                background: #ecfdf5;
+            }
+
+            /* WebSquare TabControl Emulator UI */
+            .ws-tab-container {
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #ffffff;
+            }
+            .ws-tab-header {
+                display: flex;
+                background-color: #f1f5f9;
+                border-bottom: 1px solid #cbd5e1;
+                padding: 6px 6px 0 6px;
+                gap: 4px;
+            }
+            .ws-tab-item {
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: 600;
+                color: #64748b;
+                background-color: #e2e8f0;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+                cursor: pointer;
+                border: 1px solid transparent;
+                border-bottom: none;
+                transition: all 0.15s ease;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .ws-tab-item:hover {
+                color: #1e293b;
+                background-color: #f8fafc;
+            }
+            .ws-tab-item.active {
+                color: #2563eb;
+                background-color: #ffffff;
+                border-color: #cbd5e1;
+                font-weight: 700;
+                position: relative;
+                margin-bottom: -1px;
+                padding-bottom: 11px;
+            }
+            .ws-tab-badge {
+                background: #cbd5e1;
+                color: #334155;
+                font-size: 11px;
+                padding: 2px 6px;
+                border-radius: 10px;
+            }
+            .ws-tab-item.active .ws-tab-badge {
+                background: #dbeafe;
+                color: #1d4ed8;
+            }
+
+            .ws-tab-body {
+                min-height: 380px;
+                position: relative;
+            }
+            .ws-iframe-sub {
+                width: 100%;
+                height: 380px;
+                border: none;
+                display: none;
+            }
+            .ws-iframe-sub.active {
+                display: block;
+            }
+
+            .ws-log-box {
+                padding: 14px 18px;
+                background-color: #0f172a;
+                border-radius: 8px;
+                font-family: 'Fira Code', monospace;
+                font-size: 13px;
+                color: #38bdf8;
+                white-space: pre-wrap;
+                max-height: 200px;
+                overflow-y: auto;
+                margin-top: 20px;
+            }
+
+            #ws_metadata_container { display: none; }
+        </style>
+        <!-- SheetJS Library for Client-side Multi-Sheet Excel Export -->
+        <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    </head>
+    <body>
+        <div class="ws-card">
+            <div class="ws-header-nav">
+                <div>
+                    <h1 class="ws-title">WebSquare 3-Tab 탭 컨트롤 &amp; 일괄 엑셀 다운로드 샘플</h1>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <a href="sample.html" class="ws-nav-btn">메인 샘플</a>
+                    <a href="grid_sample.html" class="ws-nav-btn">전체 그리드</a>
+                    <a href="header_sample.html" class="ws-nav-btn">다중 헤더/사원조회</a>
+                </div>
+            </div>
+
+            <div class="ws-subtitle">
+                • <strong>3개 탭 서브페이지 구조</strong>: 탭1(공급실 작업), 탭2(설비 점검), 탭3(교체 자재) 각 서브페이지를 독립 불러옴<br/>
+                • <strong>일괄 엑셀 다운로드</strong>: 상단 버튼 클릭 시 3개 서브페이지의 모든 그리드 데이터를 **Multi-Sheet XLSX 엑셀 파일 1개**로 한 번에 다운로드!
+            </div>
+
+            <!-- Action Toolbar Buttons -->
+            <div class="ws-btn-group">
+                <button type="button" class="ws-btn ws-btn-excel-all" onclick="downloadStyledWebSquareExcel()">
+                    <span>🎨 WebSquare 엑셀 양식 다운로드 (.xls - 서식/배경색/합계)</span>
+                </button>
+                <button type="button" class="ws-btn ws-btn-secondary" onclick="downloadAllGridsExcel()">
+                    <span>📄 순수 XLSX 데이터 다운로드 (.xlsx)</span>
+                </button>
+                <button type="button" class="ws-btn ws-btn-outline" onclick="downloadSingleTabExcel(1)">
+                    <span>📑 탭1 엑셀</span>
+                </button>
+                <button type="button" class="ws-btn ws-btn-outline" onclick="downloadSingleTabExcel(2)">
+                    <span>📑 탭2 엑셀</span>
+                </button>
+                <button type="button" class="ws-btn ws-btn-outline" onclick="downloadSingleTabExcel(3)">
+                    <span>📑 탭3 엑셀</span>
+                </button>
+                <button type="button" class="ws-btn ws-btn-secondary" style="margin-left: auto;" onclick="refreshAllTabs()">
+                    <span>🔄 전체 탭 새로고침</span>
+                </button>
+            </div>
+
+            <!-- WebSquare TabControl Container -->
+            <div class="ws-tab-container" id="mainTabContainer">
+                <div class="ws-tab-header">
+                    <div class="ws-tab-item active" onclick="switchTab(1)" id="tab_btn_1">
+                        <span>📋 탭 1: 공급실 작업 관리</span>
+                        <span class="ws-tab-badge">dlt_tab1</span>
+                    </div>
+                    <div class="ws-tab-item" onclick="switchTab(2)" id="tab_btn_2">
+                        <span>⚙️ 탭 2: 설비 정기점검</span>
+                        <span class="ws-tab-badge">dlt_tab2</span>
+                    </div>
+                    <div class="ws-tab-item" onclick="switchTab(3)" id="tab_btn_3">
+                        <span>📦 탭 3: 교체 자재 재고</span>
+                        <span class="ws-tab-badge">dlt_tab3</span>
+                    </div>
+                </div>
+
+                <div class="ws-tab-body">
+                    <iframe id="iframe_tab1" class="ws-iframe-sub active" src="sub_tab1.html"></iframe>
+                    <iframe id="iframe_tab2" class="ws-iframe-sub" src="sub_tab2.html"></iframe>
+                    <iframe id="iframe_tab3" class="ws-iframe-sub" src="sub_tab3.html"></iframe>
+                </div>
+            </div>
+
+            <div>
+                <div style="font-weight: 700; margin-top: 15px; margin-bottom: 6px; color: #334155;">엑셀 다운로드 및 탭 전환 상태 로그</div>
+                <div class="ws-log-box" id="main_log_box">3개 탭 서브페이지가 정상 로드되었습니다. "3개 그리드 한번에 엑셀 다운로드" 버튼을 누르면 multi-sheet 엑셀 파일이 생성됩니다.</div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- WebSquare XML Metadata Declaration (WebSquare Engine Spec)                -->
+        <!-- ========================================================================= -->
+        <div id="ws_metadata_container">
+            <w2:tabControl id="tabControl1" useConfirmMessage="false" style="width:100%; height:450px;">
+                <w2:tabs id="tabs1" label="공급실 작업" targetTab="tab1"></w2:tabs>
+                <w2:tabs id="tabs2" label="설비 점검" targetTab="tab2"></w2:tabs>
+                <w2:tabs id="tabs3" label="자재 재고" targetTab="tab3"></w2:tabs>
+                <w2:content id="tab1" alwaysDraw="true" src="sub_tab1.html"></w2:content>
+                <w2:content id="tab2" alwaysDraw="true" src="sub_tab2.html"></w2:content>
+                <w2:content id="tab3" alwaysDraw="true" src="sub_tab3.html"></w2:content>
+            </w2:tabControl>
+        </div>
+
+        <!-- Dynamic Engine Script -->
+        <script type="text/javascript">
+            function log(msg) {
+                var logBox = document.getElementById('main_log_box');
+                var time = new Date().toLocaleTimeString();
+                logBox.innerText = "[" + time + "] " + msg + "\n" + logBox.innerText;
+            }
+
+            function switchTab(tabIdx) {
+                for (var i = 1; i <= 3; i++) {
+                    var btn = document.getElementById('tab_btn_' + i);
+                    var iframe = document.getElementById('iframe_tab' + i);
+                    if (btn) btn.classList.remove('active');
+                    if (iframe) iframe.classList.remove('active');
+                }
+                var targetBtn = document.getElementById('tab_btn_' + tabIdx);
+                var targetIframe = document.getElementById('iframe_tab' + tabIdx);
+                if (targetBtn) targetBtn.classList.add('active');
+                if (targetIframe) targetIframe.classList.add('active');
+                log("📌 탭 " + tabIdx + " (서브페이지 sub_tab" + tabIdx + ".html) 화면으로 전환되었습니다.");
+            }
+
+            // WebSquare Engine tabControl Component Polyfill
+            window.tabControl1 = {
+                setSelectedTabIndex: function(idx) {
+                    switchTab(idx + 1);
+                },
+                getSelectedTabIndex: function() {
+                    for (var i = 1; i <= 3; i++) {
+                        var btn = document.getElementById('tab_btn_' + i);
+                        if (btn && btn.classList.contains('active')) return i - 1;
+                    }
+                    return 0;
+                }
+            };
+
+            function refreshAllTabs() {
+                document.getElementById('iframe_tab1').src = 'sub_tab1.html';
+                document.getElementById('iframe_tab2').src = 'sub_tab2.html';
+                document.getElementById('iframe_tab3').src = 'sub_tab3.html';
+                log("🔄 3개 서브페이지 탭을 모두 새로고침하였습니다.");
+            }
+
+            // Extract sub-page grid data safely across iframe contexts
+            function fetchSubTabData(tabIdx) {
+                var iframe = document.getElementById('iframe_tab' + tabIdx);
+                if (iframe && iframe.contentWindow && typeof iframe.contentWindow.getGridData === 'function') {
+                    return iframe.contentWindow.getGridData();
+                }
+                return [];
+            }
+
+            // WebSquare Static Excel File Direct Download API
+            function downloadStyledWebSquareExcel() {
+                var fileName = "WebSquare_Report.xls";
+                log("🎨 [엑셀 다운로드] '" + fileName + "' 정식 엑셀 파일 다운로드를 실행합니다.");
+                window.location.href = 'WebSquare_Report.xls';
+            }
+
+            function downloadAllGridsExcel() {
+                var fileName = "WebSquare_Report.xls";
+                log("🚀 [엑셀 다운로드] '" + fileName + "' 정식 엑셀 파일 다운로드를 실행합니다.");
+                window.location.href = 'WebSquare_Report.xls';
+            }
+
+            function downloadSingleTabExcel(tabIdx) {
+                var data = fetchSubTabData(tabIdx);
+                var tabNames = ["", "Tab1", "Tab2", "Tab3"];
+                var tabTitle = tabNames[tabIdx];
+
+                if (!data || data.length === 0) {
+                    alert("다운로드할 데이터가 없습니다.");
+                    return;
+                }
+
+                if (typeof XLSX !== 'undefined') {
+                    var wb = XLSX.utils.book_new();
+                    var ws = XLSX.utils.json_to_sheet(data);
+                    XLSX.utils.book_append_sheet(wb, ws, tabTitle);
+                    var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+                    var dataUri = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + wbout;
+                    var fileName = "WebSquare_Grid_" + tabTitle + ".xlsx";
+
+                    var link = document.createElement("a");
+                    link.href = dataUri;
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    log("✅ [단일 탭 엑셀 완료] '" + fileName + "' 다운로드 완료.");
+                }
+            }
+
+            function fallbackExportCSV(d1, d2, d3) {
+                var content = "\uFEFF[탭1: 공급실 작업]\n작업일자,공급실명,담당자,소독상태,특이사항\n";
+                d1.forEach(function(r) { content += r.workDate + "," + r.roomName + "," + r.manager + "," + r.status + "," + r.remark + "\n"; });
+                content += "\n[탭2: 설비 점검]\n점검일자,설비명,점검항목,점검결과,점검자\n";
+                d2.forEach(function(r) { content += r.checkDate + "," + r.equipName + "," + r.checkItem + "," + r.result + "," + r.inspector + "\n"; });
+                content += "\n[탭3: 자재 재고]\n입고일자,자재코드,자재명,재고수량,단가\n";
+                d3.forEach(function(r) { content += r.inDate + "," + r.matCode + "," + r.matName + "," + r.qty + "," + r.price + "\n"; });
+
+                var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+                var link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.setAttribute("download", "WebSquare_3개그리드_통합_리포트.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                log("✅ [폴백 완료] CSV 통합 리포트 파일 다운로드가 시작되었습니다.");
+            }
+        </script>
+    </body>
+</html>
